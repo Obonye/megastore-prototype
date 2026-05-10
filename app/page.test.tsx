@@ -39,6 +39,9 @@ describe("Home page", () => {
     ).toBeInTheDocument()
     expect(within(categoriesSection).getAllByRole("link")).toHaveLength(8)
     expect(
+      within(categoriesSection).getByRole("link", { name: "Tools" })
+    ).toBeInTheDocument()
+    expect(
       within(trendingSection).getByRole("heading", { name: "Trending Items" })
     ).toBeInTheDocument()
     expect(
