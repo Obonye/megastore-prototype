@@ -18,10 +18,20 @@ export type StorefrontNavbarData = {
   cartCount: number
 }
 
+export type StorefrontCategoryChipIconKey =
+  | "tools"
+  | "fondants"
+  | "boards"
+  | "decorations"
+  | "packaging"
+  | "colour"
+  | "sprinkles"
+  | "basics"
+
 export type StorefrontCategoryChip = {
   href: string
   label: string
-  icon: string
+  icon: StorefrontCategoryChipIconKey
 }
 
 export type TrendingStorefrontItem = {
