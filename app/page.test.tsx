@@ -2,6 +2,7 @@ import { render, screen, within } from "@testing-library/react"
 import { describe, expect, it, vi } from "vitest"
 
 import Page from "@/app/page"
+import { StorefrontCartProvider } from "@/components/storefront-cart-provider"
 
 vi.mock("next/image", () => ({
   default: ({
@@ -23,7 +24,11 @@ vi.mock("next/image", () => ({
 
 describe("Home page", () => {
   it("renders the categories strip and trending items section", () => {
-    render(<Page />)
+    render(
+      <StorefrontCartProvider>
+        <Page />
+      </StorefrontCartProvider>
+    )
 
     const categoriesSection = screen.getByRole("region", {
       name: /shop categories/i,
@@ -37,17 +42,29 @@ describe("Home page", () => {
         name: "Shop Categories",
       })
     ).toBeInTheDocument()
-    expect(within(categoriesSection).getAllByRole("link")).toHaveLength(8)
+    const categoryLinks = within(categoriesSection).getAllByRole("link")
+
+    expect(categoryLinks).toHaveLength(8)
+    expect(
+      within(categoriesSection).getByRole("link", { name: /tools/i })
+    ).toHaveAttribute("href", "/products?category=Tools")
     expect(
       within(trendingSection).getByRole("heading", { name: "Trending Items" })
     ).toBeInTheDocument()
+    expect(
+      within(trendingSection).getByRole("link", { name: /view all/i })
+    ).toHaveAttribute("href", "/products")
     expect(
       within(trendingSection).getAllByRole("button", { name: /add to cart/i })
     ).toHaveLength(8)
   })
 
   it("renders a split-card product preview for the first trending item", () => {
-    render(<Page />)
+    render(
+      <StorefrontCartProvider>
+        <Page />
+      </StorefrontCartProvider>
+    )
 
     const trendingSection = screen.getByRole("region", {
       name: /trending items/i,

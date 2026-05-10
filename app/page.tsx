@@ -1,4 +1,5 @@
 import Image from "next/image"
+import Link from "next/link"
 
 import {
   CakeSliceIcon,
@@ -12,6 +13,7 @@ import {
 } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react"
 
+import { StorefrontAddToCartTrigger } from "@/components/storefront-add-to-cart-trigger"
 import { Button } from "@/components/ui/button"
 import {
   type StorefrontCategoryChipIconKey,
@@ -49,9 +51,6 @@ export default function Page() {
 
         <div className="relative z-10 flex w-full flex-col gap-8 px-6 py-8 text-primary-foreground sm:px-10 sm:py-10 lg:px-14 lg:py-12">
           <div className="max-w-3xl">
-            <p className="text-sm uppercase tracking-[0.28em] text-primary-foreground/72">
-              Client Prototype
-            </p>
             <h1 className="mt-4 max-w-2xl font-heading text-4xl font-semibold tracking-tight text-primary-foreground sm:text-5xl lg:text-6xl">
               Baking supplies with a storefront presence worth lingering over.
             </h1>
@@ -62,32 +61,6 @@ export default function Page() {
             </p>
           </div>
 
-          <div className="grid gap-3 sm:max-w-3xl sm:grid-cols-3">
-            <div className="rounded-[1.5rem] border border-white/10 bg-black/24 px-4 py-4 backdrop-blur-sm">
-              <p className="text-xs uppercase tracking-[0.22em] text-primary-foreground/62">
-                Tools
-              </p>
-              <p className="mt-2 text-sm text-primary-foreground/88">
-                Precision scrapers, piping kits, and bake-day staples.
-              </p>
-            </div>
-            <div className="rounded-[1.5rem] border border-white/10 bg-black/24 px-4 py-4 backdrop-blur-sm">
-              <p className="text-xs uppercase tracking-[0.22em] text-primary-foreground/62">
-                Fondants
-              </p>
-              <p className="mt-2 text-sm text-primary-foreground/88">
-                Smooth finishes, color depth, and decorative freedom.
-              </p>
-            </div>
-            <div className="rounded-[1.5rem] border border-white/10 bg-black/24 px-4 py-4 backdrop-blur-sm">
-              <p className="text-xs uppercase tracking-[0.22em] text-primary-foreground/62">
-                Presentation
-              </p>
-              <p className="mt-2 text-sm text-primary-foreground/88">
-                Boards, toppers, ribbons, and display-ready details.
-              </p>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -136,13 +109,23 @@ export default function Page() {
         className="bg-[linear-gradient(180deg,#f7f3ec_0%,#f2ede4_100%)] px-6 py-16 sm:px-10 lg:px-14 lg:py-20"
       >
         <div className="mx-auto max-w-7xl">
-          <div className="max-w-2xl">
-            <h2
-              id="trending-items-heading"
-              className="mt-4 font-heading text-3xl font-semibold tracking-tight text-foreground sm:text-4xl"
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="max-w-2xl">
+              <h2
+                id="trending-items-heading"
+                className="mt-4 font-heading text-3xl font-semibold tracking-tight text-foreground sm:text-4xl"
+              >
+                Trending Items
+              </h2>
+            </div>
+
+            <Button
+              asChild
+              variant="outline"
+              className="rounded-full border-[#d7c8b8] bg-[#fbf7f0] px-4 text-[#4b3a2e] hover:bg-[#f1e6d7] hover:text-[#2f231b]"
             >
-              Trending Items
-            </h2>
+              <Link href="/products">View all</Link>
+            </Button>
           </div>
 
           <div className="mt-10 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
@@ -171,9 +154,12 @@ export default function Page() {
                     <p className="text-2xl font-bold tracking-tight text-white">
                       {item.price}
                     </p>
-                    <Button className="rounded-full bg-[#b6492d] px-4 text-white hover:bg-[#c55335]">
+                    <StorefrontAddToCartTrigger
+                      product={item}
+                      className="rounded-full bg-[#b6492d] px-4 text-white hover:bg-[#c55335]"
+                    >
                       Add to cart
-                    </Button>
+                    </StorefrontAddToCartTrigger>
                   </div>
                 </div>
               </article>
