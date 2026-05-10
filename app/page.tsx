@@ -1,7 +1,10 @@
 import Image from "next/image"
 
 import { Button } from "@/components/ui/button"
-import { trendingStorefrontItems } from "@/lib/mock-storefront"
+import {
+  storefrontCategoryChips,
+  trendingStorefrontItems,
+} from "@/lib/mock-storefront"
 
 export default function Page() {
   return (
@@ -62,34 +65,56 @@ export default function Page() {
       </section>
 
       <section
+        aria-labelledby="shop-categories-heading"
+        className="bg-[linear-gradient(180deg,#f7f3ec_0%,#f3eee6_100%)] px-6 py-8 sm:px-10 lg:px-14 lg:py-10"
+      >
+        <div className="mx-auto max-w-7xl">
+          <div className="max-w-2xl">
+            <h2
+              id="shop-categories-heading"
+              className="font-heading text-2xl font-semibold tracking-tight text-foreground sm:text-3xl"
+            >
+              Shop Categories
+            </h2>
+          </div>
+
+          <div className="mt-5 overflow-x-auto pb-2">
+            <div className="flex min-w-max gap-3">
+              {storefrontCategoryChips.map((chip) => (
+                <a
+                  key={chip.href}
+                  href={chip.href}
+                  className="rounded-full border border-[rgba(120,87,62,0.16)] bg-[#fbf7f0] px-4 py-2 text-sm font-medium whitespace-nowrap text-[#4b3a2e] transition-colors hover:bg-[#f1e6d7] hover:text-[#2f231b]"
+                >
+                  {chip.label}
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section
         aria-labelledby="trending-items-heading"
         className="bg-[linear-gradient(180deg,#f7f3ec_0%,#f2ede4_100%)] px-6 py-16 sm:px-10 lg:px-14 lg:py-20"
       >
         <div className="mx-auto max-w-7xl">
           <div className="max-w-2xl">
-            <p className="text-sm font-medium uppercase tracking-[0.28em] text-primary/72">
-              Merchandising Edit
-            </p>
             <h2
               id="trending-items-heading"
               className="mt-4 font-heading text-3xl font-semibold tracking-tight text-foreground sm:text-4xl"
             >
               Trending Items
             </h2>
-            <p className="mt-4 text-base leading-7 text-muted-foreground sm:text-lg">
-              Eight quick-moving bakery picks arranged as structured product
-              cards for customers who want to browse visually and add to cart
-              fast.
-            </p>
           </div>
 
           <div className="mt-10 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
             {trendingStorefrontItems.map((item) => (
               <article
                 key={item.id}
-                className="overflow-hidden rounded-[1.6rem] bg-[#2d2926] shadow-[0_20px_40px_rgba(63,41,24,0.18)]"
+                className="overflow-hidden rounded-[1rem] bg-[#2d2926] shadow-[0_20px_40px_rgba(63,41,24,0.18)]"
               >
-                <div className="relative h-56 overflow-hidden rounded-[1.15rem] border-[8px] border-[#2d2926] border-b-0 bg-stone-100">
+                <div className="relative h-56 overflow-hidden rounded-[1rem] border-[8px] border-[#2d2926] border-b-0 bg-stone-100">
                   <Image
                     src={item.imageSrc}
                     alt={item.name}
@@ -99,7 +124,7 @@ export default function Page() {
                 </div>
 
                 <div className="bg-[#2d2926] px-5 pb-5 pt-4 text-white">
-                  <h3 className="font-heading text-[2rem] font-semibold leading-none tracking-tight text-white">
+                  <h3 className="font-heading text-[1.25rem] font-semibold leading-none tracking-tight text-white">
                     {item.name}
                   </h3>
                   <p className="mt-4 min-h-14 text-sm leading-6 text-white/82">
