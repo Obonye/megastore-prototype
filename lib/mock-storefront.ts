@@ -21,6 +21,7 @@ export type StorefrontNavbarData = {
 export type StorefrontCategoryChip = {
   href: string
   label: string
+  icon: string
 }
 
 export type TrendingStorefrontItem = {
@@ -57,14 +58,14 @@ export const storefrontNavbarData: StorefrontNavbarData = {
 }
 
 export const storefrontCategoryChips: StorefrontCategoryChip[] = [
-  { href: "/products/tools", label: "Tools" },
-  { href: "/products/fondants", label: "Fondants" },
-  { href: "/products/cake-boards", label: "Cake Boards" },
-  { href: "/products/decorations", label: "Decorations" },
-  { href: "/products/packaging", label: "Packaging" },
-  { href: "/products/edible-colour", label: "Edible Colour" },
-  { href: "/products/sprinkles", label: "Sprinkles" },
-  { href: "/products/baking-basics", label: "Baking Basics" },
+  { href: "/products/tools", label: "Tools", icon: "tools" },
+  { href: "/products/fondants", label: "Fondants", icon: "fondants" },
+  { href: "/products/cake-boards", label: "Cake Boards", icon: "boards" },
+  { href: "/products/decorations", label: "Decorations", icon: "decorations" },
+  { href: "/products/packaging", label: "Packaging", icon: "packaging" },
+  { href: "/products/edible-colour", label: "Edible Colour", icon: "colour" },
+  { href: "/products/sprinkles", label: "Sprinkles", icon: "sprinkles" },
+  { href: "/products/baking-basics", label: "Baking Basics", icon: "basics" },
 ]
 
 export const trendingStorefrontItems: TrendingStorefrontItem[] = [
