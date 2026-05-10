@@ -1,10 +1,37 @@
 import Image from "next/image"
 
+import {
+  CakeSliceIcon,
+  DropletIcon,
+  PackageIcon,
+  PaintBoardIcon,
+  RibbonIcon,
+  SparklesIcon,
+  WhiskIcon,
+  Wrench01Icon,
+} from "@hugeicons/core-free-icons"
+import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react"
+
 import { Button } from "@/components/ui/button"
 import {
+  type StorefrontCategoryChipIconKey,
   storefrontCategoryChips,
   trendingStorefrontItems,
 } from "@/lib/mock-storefront"
+
+const storefrontCategoryChipIcons: Record<
+  StorefrontCategoryChipIconKey,
+  IconSvgElement
+> = {
+  tools: Wrench01Icon,
+  fondants: CakeSliceIcon,
+  boards: PaintBoardIcon,
+  decorations: RibbonIcon,
+  packaging: PackageIcon,
+  colour: DropletIcon,
+  sprinkles: SparklesIcon,
+  basics: WhiskIcon,
+}
 
 export default function Page() {
   return (
@@ -80,15 +107,25 @@ export default function Page() {
 
           <div className="mt-5 overflow-x-auto pb-2">
             <div className="flex min-w-max gap-3">
-              {storefrontCategoryChips.map((chip) => (
-                <a
-                  key={chip.href}
-                  href={chip.href}
-                  className="rounded-full border border-[rgba(120,87,62,0.16)] bg-[#fbf7f0] px-4 py-2 text-sm font-medium whitespace-nowrap text-[#4b3a2e] transition-colors hover:bg-[#f1e6d7] hover:text-[#2f231b]"
-                >
-                  {chip.label}
-                </a>
-              ))}
+              {storefrontCategoryChips.map((chip) => {
+                const chipIcon = storefrontCategoryChipIcons[chip.icon]
+
+                return (
+                  <a
+                    key={chip.href}
+                    href={chip.href}
+                    className="inline-flex items-center gap-2 rounded-full border border-[rgba(120,87,62,0.16)] bg-[#fbf7f0] px-4 py-2 text-sm font-medium whitespace-nowrap text-[#4b3a2e] transition-colors hover:bg-[#f1e6d7] hover:text-[#2f231b]"
+                  >
+                    <HugeiconsIcon
+                      icon={chipIcon}
+                      size={16}
+                      strokeWidth={1.7}
+                      className="shrink-0 text-current"
+                    />
+                    <span>{chip.label}</span>
+                  </a>
+                )
+              })}
             </div>
           </div>
         </div>
