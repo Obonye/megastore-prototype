@@ -22,19 +22,27 @@ vi.mock("next/image", () => ({
 }))
 
 describe("Home page", () => {
-  it("renders the trending items section with 8 add to cart actions", () => {
+  it("renders the categories strip and trending items section", () => {
     render(<Page />)
 
+    const categoriesSection = screen.getByRole("region", {
+      name: /shop categories/i,
+    })
     const trendingSection = screen.getByRole("region", {
       name: /trending items/i,
     })
-    const trendingSectionQueries = within(trendingSection)
 
     expect(
-      trendingSectionQueries.getByRole("heading", { name: "Trending Items" })
+      within(categoriesSection).getByRole("heading", {
+        name: "Shop Categories",
+      })
+    ).toBeInTheDocument()
+    expect(within(categoriesSection).getAllByRole("link")).toHaveLength(8)
+    expect(
+      within(trendingSection).getByRole("heading", { name: "Trending Items" })
     ).toBeInTheDocument()
     expect(
-      trendingSectionQueries.getAllByRole("button", { name: /add to cart/i })
+      within(trendingSection).getAllByRole("button", { name: /add to cart/i })
     ).toHaveLength(8)
   })
 
