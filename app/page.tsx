@@ -77,7 +77,7 @@ export default function Page() {
               Trending Items
             </h2>
             <p className="mt-4 text-base leading-7 text-muted-foreground sm:text-lg">
-              Eight quick-moving bakery picks arranged as image-led product
+              Eight quick-moving bakery picks arranged as structured product
               cards for customers who want to browse visually and add to cart
               fast.
             </p>
@@ -87,31 +87,29 @@ export default function Page() {
             {trendingStorefrontItems.map((item) => (
               <article
                 key={item.id}
-                className="group relative flex min-h-[22rem] overflow-hidden rounded-[2rem] bg-stone-300 shadow-[0_20px_45px_rgba(63,41,24,0.14)] transition-transform duration-200 hover:-translate-y-1"
+                className="overflow-hidden rounded-[1.6rem] bg-[#2d2926] shadow-[0_20px_40px_rgba(63,41,24,0.18)]"
               >
-                <Image
-                  src={item.imageSrc}
-                  alt={item.name}
-                  fill
-                  className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-                />
-                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(21,18,15,0.08)_0%,rgba(21,18,15,0.22)_38%,rgba(21,18,15,0.88)_100%)]" />
+                <div className="relative h-56 overflow-hidden rounded-[1.15rem] border-[8px] border-[#2d2926] border-b-0 bg-stone-100">
+                  <Image
+                    src={item.imageSrc}
+                    alt={item.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
 
-                <div className="relative z-10 mt-auto flex w-full flex-col px-5 pb-5 pt-16 text-white">
-                  <h3 className="font-heading text-[1.7rem] font-semibold tracking-tight text-white">
+                <div className="bg-[#2d2926] px-5 pb-5 pt-4 text-white">
+                  <h3 className="font-heading text-[2rem] font-semibold leading-none tracking-tight text-white">
                     {item.name}
                   </h3>
-                  <p className="mt-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/72">
-                    {item.category}
-                  </p>
-                  <p className="mt-3 min-h-12 text-sm leading-6 text-white/82">
+                  <p className="mt-4 min-h-14 text-sm leading-6 text-white/82">
                     {item.description}
                   </p>
-                  <div className="mt-5 flex items-center justify-between gap-3">
+                  <div className="mt-6 flex items-center justify-between gap-3">
                     <p className="text-2xl font-bold tracking-tight text-white">
                       {item.price}
                     </p>
-                    <Button className="bg-white/92 px-4 text-stone-950 hover:bg-white">
+                    <Button className="rounded-full bg-[#b6492d] px-4 text-white hover:bg-[#c55335]">
                       Add to cart
                     </Button>
                   </div>
