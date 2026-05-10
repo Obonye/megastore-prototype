@@ -22,7 +22,7 @@ vi.mock("next/image", () => ({
 }))
 
 describe("Home page", () => {
-  it("renders the trending items card contract", () => {
+  it("renders the trending items section with 8 add to cart actions", () => {
     render(<Page />)
 
     const trendingSection = screen.getByRole("region", {
@@ -30,13 +30,22 @@ describe("Home page", () => {
     })
     const trendingSectionQueries = within(trendingSection)
 
-    expect(trendingSection).toBeInTheDocument()
     expect(
       trendingSectionQueries.getByRole("heading", { name: "Trending Items" })
     ).toBeInTheDocument()
     expect(
       trendingSectionQueries.getAllByRole("button", { name: /add to cart/i })
     ).toHaveLength(8)
+  })
+
+  it("renders the first trending item image contract", () => {
+    render(<Page />)
+
+    const trendingSection = screen.getByRole("region", {
+      name: /trending items/i,
+    })
+    const trendingSectionQueries = within(trendingSection)
+
     expect(
       trendingSectionQueries.getByAltText("Angled Scraper Set")
     ).toBeInTheDocument()
