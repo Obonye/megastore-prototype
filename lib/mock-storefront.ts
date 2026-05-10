@@ -57,23 +57,24 @@ export const trendingStorefrontItems: TrendingStorefrontItem[] = [
     category: "Tools",
     name: "Angled Scraper Set",
     description: "Sharp edges for smoother buttercream finishes.",
-    price: "R189",
-    imageSrc: "/trending/angled-scraper-set.svg",
+    price: "P189",
+    imageSrc:
+      "https://images.unsplash.com/photo-1760445528772-01c57126f275?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
   },
   {
     id: "rolled-fondant-ivory",
     category: "Fondants",
     name: "Rolled Fondant Ivory",
     description: "Soft stretch and clean coverage for celebration cakes.",
-    price: "R129",
-    imageSrc: "/trending/rolled-fondant-ivory.svg",
+    price: "P129",
+    imageSrc: "https://images.unsplash.com/photo-1582180834946-f3d376b18376?q=80&w=688&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
   },
   {
     id: "signature-cake-board-pack",
     category: "Presentation",
     name: "Signature Cake Board Pack",
     description: "Rigid boards with a satin finish for polished handoff.",
-    price: "R149",
+    price: "P149",
     imageSrc: "/trending/signature-cake-board-pack.svg",
   },
   {
@@ -81,7 +82,7 @@ export const trendingStorefrontItems: TrendingStorefrontItem[] = [
     category: "Decorating",
     name: "Piping Nozzle Collection",
     description: "Star, petal, and round tips for crisp decorative work.",
-    price: "R219",
+    price: "P219",
     imageSrc: "/trending/piping-nozzle-collection.svg",
   },
   {
@@ -89,7 +90,7 @@ export const trendingStorefrontItems: TrendingStorefrontItem[] = [
     category: "Finishing",
     name: "Edible Lustre Duo",
     description: "Gold and pearl highlights for premium final touches.",
-    price: "R99",
+    price: "P99",
     imageSrc: "/trending/edible-lustre-duo.svg",
   },
   {
@@ -97,7 +98,7 @@ export const trendingStorefrontItems: TrendingStorefrontItem[] = [
     category: "Tools",
     name: "Turntable Starter Kit",
     description: "A stable spin base with the essentials for cleaner icing.",
-    price: "R349",
+    price: "P349",
     imageSrc: "/trending/turntable-starter-kit.svg",
   },
   {
@@ -105,7 +106,7 @@ export const trendingStorefrontItems: TrendingStorefrontItem[] = [
     category: "Decorations",
     name: "Ombre Sprinkle Tin",
     description: "Layered colour blends to brighten cupcakes and cookies.",
-    price: "R79",
+    price: "P79",
     imageSrc: "/trending/ombre-sprinkle-tin.svg",
   },
   {
@@ -113,7 +114,7 @@ export const trendingStorefrontItems: TrendingStorefrontItem[] = [
     category: "Presentation",
     name: "Celebration Ribbon Bundle",
     description: "Texture-rich trims for boxes, boards, and final wrap-up.",
-    price: "R109",
+    price: "P109",
     imageSrc: "/trending/celebration-ribbon-bundle.svg",
   },
 ]
