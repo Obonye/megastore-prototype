@@ -18,6 +18,11 @@ export type StorefrontNavbarData = {
   cartCount: number
 }
 
+export type StorefrontCategoryChip = {
+  href: string
+  label: string
+}
+
 export type TrendingStorefrontItem = {
   id: string
   category: string
@@ -50,6 +55,17 @@ export const storefrontNavbarData: StorefrontNavbarData = {
   cartLabel: "Cart",
   cartCount: 2,
 }
+
+export const storefrontCategoryChips: StorefrontCategoryChip[] = [
+  { href: "/products/tools", label: "Tools" },
+  { href: "/products/fondants", label: "Fondants" },
+  { href: "/products/cake-boards", label: "Cake Boards" },
+  { href: "/products/decorations", label: "Decorations" },
+  { href: "/products/packaging", label: "Packaging" },
+  { href: "/products/edible-colour", label: "Edible Colour" },
+  { href: "/products/sprinkles", label: "Sprinkles" },
+  { href: "/products/baking-basics", label: "Baking Basics" },
+]
 
 export const trendingStorefrontItems: TrendingStorefrontItem[] = [
   {
