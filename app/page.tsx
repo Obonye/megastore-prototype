@@ -72,7 +72,7 @@ export default function Page() {
           <div className="max-w-2xl">
             <h2
               id="shop-categories-heading"
-              className="font-heading text-2xl font-semibold tracking-tight text-foreground sm:text-3xl"
+              className="font-heading text-2xl font-semibold tracking-tight text-[#2f231b] sm:text-3xl"
             >
               Shop Categories
             </h2>
@@ -113,7 +113,7 @@ export default function Page() {
             <div className="max-w-2xl">
               <h2
                 id="trending-items-heading"
-                className="mt-4 font-heading text-3xl font-semibold tracking-tight text-foreground sm:text-4xl"
+                className="mt-4 font-heading text-3xl font-semibold tracking-tight text-[#2f231b] sm:text-4xl"
               >
                 Trending Items
               </h2>
