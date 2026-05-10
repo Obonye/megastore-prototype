@@ -38,7 +38,7 @@ describe("Home page", () => {
     ).toHaveLength(8)
   })
 
-  it("renders the first trending item image contract", () => {
+  it("renders a split-card product preview for the first trending item", () => {
     render(<Page />)
 
     const trendingSection = screen.getByRole("region", {
@@ -50,9 +50,13 @@ describe("Home page", () => {
       trendingSectionQueries.getByAltText("Angled Scraper Set")
     ).toBeInTheDocument()
     expect(
+      trendingSectionQueries.getByText("Angled Scraper Set")
+    ).toBeInTheDocument()
+    expect(
       trendingSectionQueries.getByText(
         "Sharp edges for smoother buttercream finishes."
       )
     ).toBeInTheDocument()
+    expect(trendingSectionQueries.getByText("P189")).toBeInTheDocument()
   })
 })
