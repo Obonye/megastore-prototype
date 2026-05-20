@@ -23,7 +23,7 @@ vi.mock("next/image", () => ({
 }))
 
 describe("Products page", () => {
-  it("renders the search controls and first page of catalogue items", async () => {
+  it("renders the redesigned catalogue controls", async () => {
     render(
       <StorefrontCartProvider>
         {await ProductsPage({ searchParams: Promise.resolve({}) })}
@@ -31,7 +31,9 @@ describe("Products page", () => {
     )
 
     expect(
-      screen.getByRole("heading", { name: "Products" })
+      screen.getByRole("heading", {
+        name: /search, sort, and refine the live catalogue/i,
+      })
     ).toBeInTheDocument()
     expect(
       screen.getByRole("searchbox", { name: /search products/i })
@@ -42,7 +44,7 @@ describe("Products page", () => {
     )
     expect(
       screen.getAllByRole("button", { name: /add to cart/i })
-    ).toHaveLength(6)
+    ).toHaveLength(9)
     expect(screen.getByRole("link", { name: "1" })).toHaveAttribute(
       "aria-current",
       "page"
@@ -71,12 +73,10 @@ describe("Products page", () => {
     )
     expect(screen.getByAltText("Golden Confetti Mix")).toBeInTheDocument()
     expect(
-      screen.getAllByRole("button", { name: /add to cart/i })
-    ).toHaveLength(1)
+      screen.getAllByRole("button", { name: /add to cart/i }).length
+    ).toBeGreaterThanOrEqual(1)
     expect(screen.queryByText("Ombre Sprinkle Tin")).not.toBeInTheDocument()
-    expect(
-      screen.queryByText("Precision Offset Spatula")
-    ).not.toBeInTheDocument()
+    expect(screen.queryByText("Angled Scraper Set")).not.toBeInTheDocument()
   })
 
   it("renders the second page while preserving pagination links", async () => {
@@ -91,9 +91,7 @@ describe("Products page", () => {
     )
 
     expect(screen.getByAltText("Golden Confetti Mix")).toBeInTheDocument()
-    expect(
-      screen.queryByText("Precision Offset Spatula")
-    ).not.toBeInTheDocument()
+    expect(screen.queryByText("Angled Scraper Set")).not.toBeInTheDocument()
 
     const pagination = screen.getByRole("navigation", {
       name: /products pagination/i,

@@ -1,6 +1,8 @@
 import { Geist, Geist_Mono, Public_Sans } from "next/font/google"
+import type { Viewport } from "next"
 
 import "./globals.css"
+import { SiteFooter } from "@/components/site-footer"
 import { SiteNavbar } from "@/components/site-navbar"
 import { StorefrontCartProvider } from "@/components/storefront-cart-provider"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -18,6 +20,10 @@ const fontMono = Geist_Mono({
   variable: "--font-mono",
 })
 
+export const viewport: Viewport = {
+  themeColor: "#fffaf6",
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -28,18 +34,19 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning
       className={cn(
-        "font-sans antialiased",
+        "bg-[#fffaf6] font-sans antialiased",
         fontMono.variable,
         publicSans.variable,
         geistHeading.variable
       )}
     >
-      <body>
+      <body className="min-h-dvh bg-[#fffaf6]">
         <ThemeProvider>
           <StorefrontCartProvider>
-            <div className="min-h-svh bg-background">
+            <div className="min-h-dvh bg-background">
               <SiteNavbar />
               {children}
+              <SiteFooter />
             </div>
           </StorefrontCartProvider>
         </ThemeProvider>

@@ -18,6 +18,23 @@ export type StorefrontNavbarData = {
   cartCount: number
 }
 
+export type StorefrontHeroSlide = {
+  id: string
+  eyebrow: string
+  title: string
+  description: string
+  primaryCtaLabel: string
+  primaryCtaHref: string
+  secondaryCtaLabel: string
+  secondaryCtaHref: string
+  imageSrc: string
+  imageAlt: string
+  overlayClassName: string
+  accentClassName: string
+  titleColorClassName?: string
+  primaryButtonClassName?: string
+}
+
 export type StorefrontCategoryChipIconKey =
   | "tools"
   | "fondants"
@@ -32,6 +49,8 @@ export type StorefrontCategoryChip = {
   href: string
   label: string
   icon: StorefrontCategoryChipIconKey
+  imageSrc: string
+  imageAlt: string
 }
 
 export type TrendingStorefrontItem = {
@@ -70,57 +89,139 @@ export const storefrontNavbarData: StorefrontNavbarData = {
   links: [
     {
       href: "/products",
-      label: "Products",
-      items: [
-        { href: "/products/tools", label: "Tools" },
-        { href: "/products/fondants", label: "Fondants" },
-        { href: "/products/cake-boards", label: "Cake Boards" },
-        { href: "/products/decorations", label: "Decorations" },
-      ],
+      label: "Shop All",
     },
-    { href: "/contact-us", label: "Contact Us" },
+    { href: "/products?category=Baking+Basics", label: "Ingredients" },
+    { href: "/products?category=Tools", label: "Tools" },
+    { href: "/products?category=Cake+Boards", label: "Bakeware" },
+  
   ],
-  searchPlaceholder: "Search products, tools, decorations...",
+  searchPlaceholder: "Search products...",
   cartLabel: "Cart",
   cartCount: 2,
 }
 
+export const storefrontHeroSlides: StorefrontHeroSlide[] = [
+  {
+    id: "baking-inspiration",
+    eyebrow: "Baking Inspiration",
+    title: "Shop Baking Essentials.",
+    description:
+      "Find cake tools, smooth fondants, sturdy boards, and decorating staples for birthday bakes, celebration orders, and everyday prep.",
+    primaryCtaLabel: "Shop Essentials",
+    primaryCtaHref: "/products",
+    secondaryCtaLabel: "Browse Categories",
+    secondaryCtaHref: "/#shop-categories-heading",
+    imageSrc: "/hero1.jpg",
+    imageAlt: "A decorated cake photographed in a bright baking setting.",
+    overlayClassName:
+      "bg-[linear-gradient(90deg,rgba(35,28,24,0.48),rgba(35,28,24,0.22),rgba(35,28,24,0.08))]",
+    accentClassName: "bg-[oklch(0.74_0.13_170)] text-[oklch(0.19_0.02_185)]",
+    titleColorClassName: "text-[#ff6b9a]",
+    primaryButtonClassName: "bg-[#ff6b9a] hover:bg-[#f85a8d]",
+  },
+  {
+    id: "precision-tools",
+    eyebrow: "Professional Equipment",
+    title: "Build Your Tool Kit.",
+    description:
+      "Shop scrapers, turntables, measuring sets, and everyday bench tools that make icing, smoothing, and prep work faster and cleaner.",
+    primaryCtaLabel: "Shop Tools",
+    primaryCtaHref: "/products?category=Tools",
+    secondaryCtaLabel: "See Best Sellers",
+    secondaryCtaHref: "/#best-sellers-heading",
+    imageSrc: "/hero2.jpg",
+    imageAlt:
+      "Baking and decorating tools arranged on a work surface.",
+    overlayClassName:
+      "bg-[linear-gradient(90deg,rgba(44,24,30,0.5),rgba(44,24,30,0.24),rgba(44,24,30,0.08))]",
+    accentClassName: "bg-[#d9dcff] text-[#1a2330]",
+    titleColorClassName: "text-[#fff4df]",
+    primaryButtonClassName: "bg-[#fff4df] hover:bg-[#f6e8cd]",
+  },
+  {
+    id: "premium-ingredients",
+    eyebrow: "Premium Ingredients",
+    title: "Taste the Difference.",
+    description:
+      "From vanilla, colour, and sprinkles to pantry staples you reach for every week, shop ingredients chosen for better flavour, richer aroma, and more beautiful finishes.",
+    primaryCtaLabel: "Shop Ingredients",
+    primaryCtaHref: "/products?category=Baking+Basics",
+    secondaryCtaLabel: "Browse Baking Basics",
+    secondaryCtaHref: "/products?category=Baking+Basics",
+    imageSrc: "/hero3.jpg?v=2",
+    imageAlt: "Assorted baking ingredients and tools arranged for prep.",
+    overlayClassName:
+      "bg-[linear-gradient(90deg,rgba(46,28,12,0.5),rgba(46,28,12,0.24),rgba(46,28,12,0.08))]",
+    accentClassName: "bg-[oklch(0.8_0.14_80)] text-[oklch(0.28_0.05_70)]",
+    titleColorClassName: "text-[#ff9f43]",
+    primaryButtonClassName: "bg-[#ff9f43] hover:bg-[#f28f2f]",
+  },
+]
+
 export const storefrontCategoryChips: StorefrontCategoryChip[] = [
-  { href: "/products?category=Tools", label: "Tools", icon: "tools" },
+  {
+    href: "/products?category=Tools",
+    label: "Tools",
+    icon: "tools",
+    imageSrc:
+      "https://images.unsplash.com/photo-1760445528772-01c57126f275?q=80&w=687&auto=format&fit=crop",
+    imageAlt: "Metal icing tools and scrapers laid out on a work surface.",
+  },
   {
     href: "/products?category=Fondants",
     label: "Fondants",
     icon: "fondants",
+    imageSrc:
+      "https://images.unsplash.com/photo-1582180834946-f3d376b18376?q=80&w=688&auto=format&fit=crop",
+    imageAlt: "A fondant-covered celebration cake with a smooth finish.",
   },
   {
     href: "/products?category=Cake+Boards",
     label: "Cake Boards",
     icon: "boards",
+    imageSrc:
+      "https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=1189&auto=format&fit=crop",
+    imageAlt: "A display cake styled on a finished presentation board.",
   },
   {
     href: "/products?category=Decorations",
     label: "Decorations",
     icon: "decorations",
+    imageSrc: "/trending/piping-nozzle-collection.svg",
+    imageAlt: "Decorating nozzles and piping accessories.",
   },
   {
     href: "/products?category=Packaging",
     label: "Packaging",
     icon: "packaging",
+    imageSrc:
+      "https://images.unsplash.com/photo-1519869325930-281384150729?q=80&w=1064&auto=format&fit=crop",
+    imageAlt: "Bakery boxes and packaging materials arranged for pickup orders.",
   },
   {
     href: "/products?category=Edible+Colour",
     label: "Edible Colour",
     icon: "colour",
+    imageSrc:
+      "https://images.unsplash.com/photo-1517686469429-8bdb88b9f907?q=80&w=1171&auto=format&fit=crop",
+    imageAlt: "Edible colour bottles and decorating pigment on a work surface.",
   },
   {
     href: "/products?category=Sprinkles",
     label: "Sprinkles",
     icon: "sprinkles",
+    imageSrc:
+      "https://images.unsplash.com/photo-1488477181946-6428a0291777?q=80&w=1170&auto=format&fit=crop",
+    imageAlt: "Colourful sprinkle mixes and metallic confetti toppings.",
   },
   {
     href: "/products?category=Baking+Basics",
     label: "Baking Basics",
     icon: "basics",
+    imageSrc:
+      "https://images.unsplash.com/photo-1486427944299-d1955d23e34d?q=80&w=1170&auto=format&fit=crop",
+    imageAlt: "Baking essentials including vanilla, liners, and pantry staples.",
   },
 ]
 
@@ -144,7 +245,8 @@ export const trendingStorefrontItems: TrendingStorefrontItem[] = [
     price: "P129",
     unitPrice: 129,
     stock: 18,
-    imageSrc: "https://images.unsplash.com/photo-1582180834946-f3d376b18376?q=80&w=688&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    imageSrc:
+      "https://images.unsplash.com/photo-1582180834946-f3d376b18376?q=80&w=688&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
   },
   {
     id: "signature-cake-board-pack",
@@ -231,7 +333,8 @@ export const storefrontProducts: StorefrontProduct[] = [
     name: "Turntable Starter Kit",
     category: "Tools",
     categorySlug: "tools",
-    description: "Stable spin base with the everyday tools needed for cleaner icing.",
+    description:
+      "Stable spin base with the everyday tools needed for cleaner icing.",
     price: "P349",
     unitPrice: 349,
     stock: 5,
@@ -246,7 +349,8 @@ export const storefrontProducts: StorefrontProduct[] = [
     name: "Piping Nozzle Collection",
     category: "Decorations",
     categorySlug: "decorations",
-    description: "Star, petal, and round tips for crisp borders, rosettes, and florals.",
+    description:
+      "Star, petal, and round tips for crisp borders, rosettes, and florals.",
     price: "P219",
     unitPrice: 219,
     stock: 7,
@@ -261,7 +365,8 @@ export const storefrontProducts: StorefrontProduct[] = [
     name: "Rolled Fondant Ivory",
     category: "Fondants",
     categorySlug: "fondants",
-    description: "Soft stretch, smooth coverage, and a neutral tone for wedding tiers.",
+    description:
+      "Soft stretch, smooth coverage, and a neutral tone for wedding tiers.",
     price: "P129",
     unitPrice: 129,
     stock: 18,
@@ -277,7 +382,8 @@ export const storefrontProducts: StorefrontProduct[] = [
     name: "Rolled Fondant Blush",
     category: "Fondants",
     categorySlug: "fondants",
-    description: "A soft pink finish for baby showers, florals, and celebration sets.",
+    description:
+      "A soft pink finish for baby showers, florals, and celebration sets.",
     price: "P135",
     unitPrice: 135,
     stock: 9,
@@ -293,7 +399,8 @@ export const storefrontProducts: StorefrontProduct[] = [
     name: "Signature Cake Board Pack",
     category: "Cake Boards",
     categorySlug: "cake-boards",
-    description: "Rigid boards with a satin finish for a polished handoff at pickup.",
+    description:
+      "Rigid boards with a satin finish for a polished handoff at pickup.",
     price: "P149",
     unitPrice: 149,
     stock: 10,
@@ -308,7 +415,8 @@ export const storefrontProducts: StorefrontProduct[] = [
     name: "Scalloped Display Board",
     category: "Cake Boards",
     categorySlug: "cake-boards",
-    description: "A decorative edge for boutique cakes that need a softer presentation line.",
+    description:
+      "A decorative edge for boutique cakes that need a softer presentation line.",
     price: "P99",
     unitPrice: 99,
     stock: 8,
@@ -324,7 +432,8 @@ export const storefrontProducts: StorefrontProduct[] = [
     name: "Celebration Ribbon Bundle",
     category: "Packaging",
     categorySlug: "packaging",
-    description: "Texture-rich trims for boxes, boards, and final wrap-up before collection.",
+    description:
+      "Texture-rich trims for boxes, boards, and final wrap-up before collection.",
     price: "P109",
     unitPrice: 109,
     stock: 11,
@@ -339,7 +448,8 @@ export const storefrontProducts: StorefrontProduct[] = [
     name: "Window Cake Box Pair",
     category: "Packaging",
     categorySlug: "packaging",
-    description: "Tall, clear-top boxes that keep finished cakes protected and visible.",
+    description:
+      "Tall, clear-top boxes that keep finished cakes protected and visible.",
     price: "P139",
     unitPrice: 139,
     stock: 6,
@@ -355,7 +465,8 @@ export const storefrontProducts: StorefrontProduct[] = [
     name: "Ombre Sprinkle Tin",
     category: "Sprinkles",
     categorySlug: "sprinkles",
-    description: "Layered colour blends to brighten cupcakes, cookies, and dessert jars.",
+    description:
+      "Layered colour blends to brighten cupcakes, cookies, and dessert jars.",
     price: "P79",
     unitPrice: 79,
     stock: 16,
@@ -370,7 +481,8 @@ export const storefrontProducts: StorefrontProduct[] = [
     name: "Golden Confetti Mix",
     category: "Sprinkles",
     categorySlug: "sprinkles",
-    description: "Metallic pearls, rods, and sequins for birthdays and luxe dessert tables.",
+    description:
+      "Metallic pearls, rods, and sequins for birthdays and luxe dessert tables.",
     price: "P89",
     unitPrice: 89,
     stock: 4,
@@ -386,7 +498,8 @@ export const storefrontProducts: StorefrontProduct[] = [
     name: "Edible Lustre Duo",
     category: "Edible Colour",
     categorySlug: "edible-colour",
-    description: "Gold and pearl highlights for premium final touches on fondant and buttercream.",
+    description:
+      "Gold and pearl highlights for premium final touches on fondant and buttercream.",
     price: "P99",
     unitPrice: 99,
     stock: 14,
@@ -401,7 +514,8 @@ export const storefrontProducts: StorefrontProduct[] = [
     name: "Gel Colour Trio",
     category: "Edible Colour",
     categorySlug: "edible-colour",
-    description: "Concentrated red, leaf green, and sky blue for batters, icing, and fondant.",
+    description:
+      "Concentrated red, leaf green, and sky blue for batters, icing, and fondant.",
     price: "P119",
     unitPrice: 119,
     stock: 13,
@@ -417,7 +531,8 @@ export const storefrontProducts: StorefrontProduct[] = [
     name: "Vanilla Bean Bake Bundle",
     category: "Baking Basics",
     categorySlug: "baking-basics",
-    description: "Vanilla paste, cupcake liners, and parchment rounds for steady bake days.",
+    description:
+      "Vanilla paste, cupcake liners, and parchment rounds for steady bake days.",
     price: "P159",
     unitPrice: 159,
     stock: 15,
@@ -433,7 +548,8 @@ export const storefrontProducts: StorefrontProduct[] = [
     name: "Measuring Mise Set",
     category: "Baking Basics",
     categorySlug: "baking-basics",
-    description: "Nested cups and spoons with engraved marks for repeatable prep work.",
+    description:
+      "Nested cups and spoons with engraved marks for repeatable prep work.",
     price: "P129",
     unitPrice: 129,
     stock: 9,

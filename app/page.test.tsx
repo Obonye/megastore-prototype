@@ -23,13 +23,16 @@ vi.mock("next/image", () => ({
 }))
 
 describe("Home page", () => {
-  it("renders the categories strip and trending items section", () => {
+  it("renders the carousel hero, category grid, and trending items section", () => {
     render(
       <StorefrontCartProvider>
         <Page />
       </StorefrontCartProvider>
     )
 
+    expect(
+      screen.getByRole("heading", { name: "The Art of Baking." })
+    ).toBeInTheDocument()
     const categoriesSection = screen.getByRole("region", {
       name: /shop categories/i,
     })
@@ -39,7 +42,7 @@ describe("Home page", () => {
 
     expect(
       within(categoriesSection).getByRole("heading", {
-        name: "Shop Categories",
+        name: "Explore every station in the bakery.",
       })
     ).toBeInTheDocument()
     const categoryLinks = within(categoriesSection).getAllByRole("link")

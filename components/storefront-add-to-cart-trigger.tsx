@@ -10,12 +10,14 @@ import {
 } from "@/components/storefront-cart-provider"
 
 type StorefrontAddToCartTriggerProps = {
+  ariaLabel?: string
   children?: React.ReactNode
   className?: string
   product: StorefrontPurchasableProduct
 }
 
 export function StorefrontAddToCartTrigger({
+  ariaLabel,
   children,
   className,
   product,
@@ -26,6 +28,7 @@ export function StorefrontAddToCartTrigger({
     <Button
       type="button"
       onClick={() => openProductSheet(product)}
+      aria-label={ariaLabel ?? "Add to cart"}
       className={className}
     >
       {children ?? "Add to cart"}

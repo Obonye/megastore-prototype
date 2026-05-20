@@ -15,26 +15,27 @@ describe("SiteNavbar", () => {
 
     expect(screen.getByText("The Mega Store")).toBeInTheDocument()
     expect(
-      screen.getByPlaceholderText("Search products, tools, decorations...")
+      screen.getByPlaceholderText("Search products...")
     ).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Products" })).toBeInTheDocument()
     expect(
-      screen.getByRole("link", { name: "Contact Us" })
-    ).toBeInTheDocument()
+      screen.getAllByRole("link", { name: "Shop All" }).length
+    ).toBeGreaterThan(0)
+    expect(
+      screen.getAllByRole("link", { name: "Ingredients" }).length
+    ).toBeGreaterThan(0)
     expect(screen.getByRole("link", { name: /cart/i })).toBeInTheDocument()
   })
 
-  it("renders the products nav item as a direct desktop link", () => {
+  it("renders the shop all nav item as a direct desktop link", () => {
     render(
       <StorefrontCartProvider>
         <SiteNavbar />
       </StorefrontCartProvider>
     )
 
-    expect(screen.getByRole("link", { name: "Products" })).toHaveAttribute(
-      "href",
-      "/products"
-    )
+    expect(
+      screen.getAllByRole("link", { name: "Shop All" })[0]
+    ).toHaveAttribute("href", "/products")
     expect(screen.getByRole("link", { name: /^cart/i })).toHaveAttribute(
       "href",
       "/cart"
@@ -56,8 +57,10 @@ describe("SiteNavbar", () => {
 
     expect(screen.getByText("Browse the shop")).toBeInTheDocument()
     expect(
-      screen.getByRole("link", { name: "Contact Us" })
-    ).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Products" })).toBeInTheDocument()
+      screen.getAllByRole("link", { name: "Recipes" }).length
+    ).toBeGreaterThan(0)
+    expect(
+      screen.getAllByRole("link", { name: "Shop All" }).length
+    ).toBeGreaterThan(0)
   })
 })
