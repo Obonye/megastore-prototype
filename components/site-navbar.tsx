@@ -1,7 +1,8 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import Link from "next/link"
-import { useSearchParams } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 
 import {
   ArrowRight01Icon,
@@ -38,8 +39,14 @@ const desktopNavUnderlineClasses = [
 export function SiteNavbar() {
   const { brand, cartLabel, links, searchPlaceholder } = storefrontNavbarData
   const { cartCount } = useStorefrontCart()
+  const pathname = usePathname()
   const searchParams = useSearchParams()
   const currentQuery = searchParams.get("q") ?? ""
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+
+  useEffect(() => {
+    setIsMenuOpen(false)
+  }, [pathname, searchParams])
 
   return (
     <header className="sticky top-0 z-50 border-b border-[oklch(0.86_0.03_40)] bg-[rgba(252,248,242,0.9)] backdrop-blur-xl">
@@ -138,7 +145,7 @@ export function SiteNavbar() {
               </Link>
             </Button>
 
-            <Sheet>
+            <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
               <SheetTrigger asChild>
                 <Button
                   type="button"
@@ -174,6 +181,7 @@ export function SiteNavbar() {
                       <Link
                         key={link.href}
                         href={link.href}
+                        onClick={() => setIsMenuOpen(false)}
                         className="flex items-center justify-between gap-4 px-1 py-3 text-[1.6rem] font-semibold tracking-[-0.04em] text-black transition-colors hover:text-[oklch(0.43_0.16_170)]"
                       >
                         <span>{link.label}</span>
@@ -192,7 +200,7 @@ export function SiteNavbar() {
                       variant="ghost"
                       className="h-12 w-full rounded-full border-0 bg-[#d9dcff] text-base font-semibold text-[oklch(0.23_0.03_30)] hover:bg-[#cdd2ff]"
                     >
-                      <Link href="/cart">
+                      <Link href="/cart" onClick={() => setIsMenuOpen(false)}>
                         <HugeiconsIcon
                           icon={ShoppingCart01Icon}
                           data-icon="inline-start"

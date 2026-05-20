@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 
@@ -21,6 +21,16 @@ const heroPrimaryButtonClasses = [
 
 export function ProductsHeroCarousel({ slides }: ProductsHeroCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
+  const touchStartX = useRef<number | null>(null)
+  const wheelLock = useRef(false)
+
+  const goToPrevious = () => {
+    setCurrentIndex((currentIndex - 1 + slides.length) % slides.length)
+  }
+
+  const goToNext = () => {
+    setCurrentIndex((currentIndex + 1) % slides.length)
+  }
 
   useEffect(() => {
     const interval = window.setInterval(() => {
@@ -32,9 +42,58 @@ export function ProductsHeroCarousel({ slides }: ProductsHeroCarouselProps) {
 
   return (
     <section className="relative overflow-hidden bg-[#fffaf6]">
-      <div className="group relative">
+      <div
+        className="group relative"
+        onTouchStart={(event) => {
+          touchStartX.current = event.touches[0]?.clientX ?? null
+        }}
+        onTouchEnd={(event) => {
+          const startX = touchStartX.current
+          const endX = event.changedTouches[0]?.clientX
+
+          if (startX == null || endX == null) {
+            return
+          }
+
+          const deltaX = endX - startX
+
+          if (Math.abs(deltaX) < 50) {
+            return
+          }
+
+          if (deltaX > 0) {
+            goToPrevious()
+          } else {
+            goToNext()
+          }
+
+          touchStartX.current = null
+        }}
+        onWheel={(event) => {
+          const dominantDelta =
+            Math.abs(event.deltaX) > Math.abs(event.deltaY)
+              ? event.deltaX
+              : 0
+
+          if (Math.abs(dominantDelta) < 24 || wheelLock.current) {
+            return
+          }
+
+          wheelLock.current = true
+
+          if (dominantDelta > 0) {
+            goToNext()
+          } else {
+            goToPrevious()
+          }
+
+          window.setTimeout(() => {
+            wheelLock.current = false
+          }, 650)
+        }}
+      >
         <div
-          className="flex transition-transform duration-700 ease-out"
+          className="flex touch-pan-y transition-transform duration-700 ease-out"
           style={{ transform: `translateX(-${currentIndex * 100}%)` }}
         >
           {slides.map((slide, slideIndex) => (
@@ -116,9 +175,7 @@ export function ProductsHeroCarousel({ slides }: ProductsHeroCarouselProps) {
           <div className="pointer-events-auto hidden gap-3 md:flex">
             <button
               type="button"
-              onClick={() =>
-                setCurrentIndex((currentIndex - 1 + slides.length) % slides.length)
-              }
+              onClick={goToPrevious}
               className="flex size-12 items-center justify-center rounded-full bg-[#ffd3e3] text-[#1a2330] transition-[transform,filter] hover:-translate-y-0.5 hover:brightness-95"
               aria-label="Previous slide"
             >
@@ -126,7 +183,7 @@ export function ProductsHeroCarousel({ slides }: ProductsHeroCarouselProps) {
             </button>
             <button
               type="button"
-              onClick={() => setCurrentIndex((currentIndex + 1) % slides.length)}
+              onClick={goToNext}
               className="flex size-12 items-center justify-center rounded-full bg-[#cceee7] text-[#1a2330] transition-[transform,filter] hover:-translate-y-0.5 hover:brightness-95"
               aria-label="Next slide"
             >

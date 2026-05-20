@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import { Geist, Geist_Mono, Public_Sans } from "next/font/google"
 import type { Viewport } from "next"
 
@@ -44,7 +45,9 @@ export default function RootLayout({
         <ThemeProvider>
           <StorefrontCartProvider>
             <div className="min-h-dvh bg-background">
-              <SiteNavbar />
+              <Suspense fallback={null}>
+                <SiteNavbar />
+              </Suspense>
               {children}
               <SiteFooter />
             </div>
