@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Public_Sans } from "next/font/google"
 import type { Viewport } from "next"
 
 import "./globals.css"
+import { BackToTopButton } from "@/components/back-to-top-button"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteNavbar } from "@/components/site-navbar"
 import { StorefrontCartProvider } from "@/components/storefront-cart-provider"
@@ -50,6 +51,7 @@ export default function RootLayout({
               </Suspense>
               {children}
               <SiteFooter />
+              <BackToTopButton />
             </div>
           </StorefrontCartProvider>
         </ThemeProvider>

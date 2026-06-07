@@ -4,8 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 
-import { ArrowLeft01Icon, ArrowRight01Icon } from "@hugeicons/core-free-icons"
-import { HugeiconsIcon } from "@hugeicons/react"
+import { ArrowLeft, ArrowRight } from "lucide-react"
 
 import type { StorefrontHeroSlide } from "@/lib/mock-storefront"
 
@@ -99,7 +98,7 @@ export function ProductsHeroCarousel({ slides }: ProductsHeroCarouselProps) {
           {slides.map((slide, slideIndex) => (
             <article
               key={slide.id}
-              className="relative min-h-[39rem] w-full shrink-0 md:min-h-[46rem]"
+              className="relative min-h-[calc(100dvh-6rem)] w-full shrink-0"
             >
               <Image
                 src={slide.imageSrc}
@@ -112,7 +111,7 @@ export function ProductsHeroCarousel({ slides }: ProductsHeroCarouselProps) {
               <div className={`absolute inset-0 ${slide.overlayClassName}`} />
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.46),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(255,214,231,0.3),transparent_30%),radial-gradient(circle_at_20%_30%,rgba(205,231,234,0.24),transparent_30%)]" />
 
-              <div className="relative mx-auto flex min-h-[39rem] max-w-[96rem] items-center justify-center px-6 py-12 sm:px-10 md:min-h-[46rem] lg:px-16">
+              <div className="relative mx-auto flex min-h-[calc(100dvh-6rem)] max-w-[96rem] items-center justify-center px-6 py-12 sm:px-10 lg:px-16">
                 <div className="max-w-[62rem] px-1 py-2 text-center text-[#1a2330] sm:px-0">
                   <h1
                     className={`max-w-[12ch] font-heading text-[clamp(4.2rem,10vw,8rem)] font-semibold leading-[0.88] tracking-[-0.04em] [text-shadow:0_2px_18px_rgba(18,16,13,0.18)] ${
@@ -179,7 +178,7 @@ export function ProductsHeroCarousel({ slides }: ProductsHeroCarouselProps) {
               className="flex size-12 items-center justify-center rounded-full bg-[#ffd3e3] text-[#1a2330] transition-[transform,filter] hover:-translate-y-0.5 hover:brightness-95"
               aria-label="Previous slide"
             >
-              <HugeiconsIcon icon={ArrowLeft01Icon} className="size-5" />
+              <ArrowLeft className="size-5" />
             </button>
             <button
               type="button"
@@ -187,7 +186,7 @@ export function ProductsHeroCarousel({ slides }: ProductsHeroCarouselProps) {
               className="flex size-12 items-center justify-center rounded-full bg-[#cceee7] text-[#1a2330] transition-[transform,filter] hover:-translate-y-0.5 hover:brightness-95"
               aria-label="Next slide"
             >
-              <HugeiconsIcon icon={ArrowRight01Icon} className="size-5" />
+              <ArrowRight className="size-5" />
             </button>
           </div>
         </div>

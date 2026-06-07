@@ -14,6 +14,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
+import type { VariantGroup } from "@/lib/mock-storefront"
 
 type StorefrontPurchasableProduct = {
   category: string
@@ -24,10 +25,13 @@ type StorefrontPurchasableProduct = {
   price: string
   stock: number
   unitPrice: number
+  variants?: VariantGroup[]
 }
 
 type StorefrontCartItem = StorefrontPurchasableProduct & {
   quantity: number
+  selectedVariants?: Record<string, string>
+  resolvedUnitPrice: number
 }
 
 type StorefrontCartContextValue = {
@@ -49,15 +53,28 @@ function formatStorefrontPrice(value: number) {
 }
 
 function clampQuantity(value: number, max: number) {
-  if (Number.isNaN(value) || value < 1) {
-    return 1
-  }
-
+  if (Number.isNaN(value) || value < 1) return 1
   return Math.min(value, max)
 }
 
 function getCartItemLimit(item: StorefrontCartItem) {
   return Math.max(item.stock, 1)
+}
+
+function getVariantPriceModifier(
+  variants: VariantGroup[] | undefined,
+  selected: Record<string, string>
+) {
+  if (!variants) return 0
+  return variants.reduce((total, group) => {
+    const opt = group.options.find((o) => o.value === selected[group.id])
+    return total + (opt?.priceModifier ?? 0)
+  }, 0)
+}
+
+function defaultVariantSelections(variants?: VariantGroup[]): Record<string, string> {
+  if (!variants) return {}
+  return Object.fromEntries(variants.map((v) => [v.id, v.defaultValue]))
 }
 
 export function StorefrontCartProvider({
@@ -70,21 +87,19 @@ export function StorefrontCartProvider({
   const [cartItems, setCartItems] = React.useState<StorefrontCartItem[]>([])
   const [isSheetOpen, setIsSheetOpen] = React.useState(false)
   const [quantity, setQuantity] = React.useState(1)
+  const [sheetVariants, setSheetVariants] = React.useState<Record<string, string>>({})
 
   const cartCount = React.useMemo(
     () => cartItems.reduce((total, item) => total + item.quantity, 0),
     [cartItems]
   )
   const cartSubtotal = React.useMemo(
-    () => cartItems.reduce((total, item) => total + item.quantity * item.unitPrice, 0),
+    () => cartItems.reduce((total, item) => total + item.quantity * item.resolvedUnitPrice, 0),
     [cartItems]
   )
 
   const activeCartItem = React.useMemo(() => {
-    if (!activeProduct) {
-      return null
-    }
-
+    if (!activeProduct) return null
     return cartItems.find((item) => item.id === activeProduct.id) ?? null
   }, [activeProduct, cartItems])
 
@@ -92,7 +107,15 @@ export function StorefrontCartProvider({
     ? Math.max(activeProduct.stock - (activeCartItem?.quantity ?? 0), 0)
     : 0
 
-  const totalPrice = activeProduct ? quantity * activeProduct.unitPrice : 0
+  const variantPriceModifier = React.useMemo(
+    () => getVariantPriceModifier(activeProduct?.variants, sheetVariants),
+    [activeProduct?.variants, sheetVariants]
+  )
+
+  const resolvedUnitPrice = activeProduct
+    ? activeProduct.unitPrice + variantPriceModifier
+    : 0
+  const totalPrice = resolvedUnitPrice * quantity
 
   const closeProductSheet = React.useCallback(() => {
     setIsSheetOpen(false)
@@ -101,6 +124,7 @@ export function StorefrontCartProvider({
   const openProductSheet = React.useCallback(
     (product: StorefrontPurchasableProduct) => {
       setActiveProduct(product)
+      setSheetVariants(defaultVariantSelections(product.variants))
       setQuantity(1)
       setIsSheetOpen(true)
     },
@@ -109,9 +133,9 @@ export function StorefrontCartProvider({
 
   const handleSheetOpenChange = React.useCallback((open: boolean) => {
     setIsSheetOpen(open)
-
     if (!open) {
       setActiveProduct(null)
+      setSheetVariants({})
       setQuantity(1)
     }
   }, [])
@@ -122,16 +146,13 @@ export function StorefrontCartProvider({
         setQuantity(1)
         return
       }
-
       setQuantity(clampQuantity(Number(event.target.value), remainingStock))
     },
     [remainingStock]
   )
 
   const handleAddToCart = React.useCallback(() => {
-    if (!activeProduct || remainingStock === 0) {
-      return
-    }
+    if (!activeProduct || remainingStock === 0) return
 
     const nextQuantity = clampQuantity(quantity, remainingStock)
 
@@ -139,28 +160,38 @@ export function StorefrontCartProvider({
       const existingItem = currentItems.find((item) => item.id === activeProduct.id)
 
       if (!existingItem) {
-        return [...currentItems, { ...activeProduct, quantity: nextQuantity }]
+        return [
+          ...currentItems,
+          {
+            ...activeProduct,
+            quantity: nextQuantity,
+            selectedVariants: sheetVariants,
+            resolvedUnitPrice,
+          },
+        ]
       }
 
       return currentItems.map((item) =>
         item.id === activeProduct.id
-          ? { ...item, quantity: item.quantity + nextQuantity }
+          ? {
+              ...item,
+              quantity: item.quantity + nextQuantity,
+              selectedVariants: sheetVariants,
+              resolvedUnitPrice,
+            }
           : item
       )
     })
 
     handleSheetOpenChange(false)
-  }, [activeProduct, handleSheetOpenChange, quantity, remainingStock])
+  }, [activeProduct, handleSheetOpenChange, quantity, remainingStock, sheetVariants, resolvedUnitPrice])
 
   const updateCartItemQuantity = React.useCallback(
     (productId: string, quantity: number) => {
       setCartItems((currentItems) =>
         currentItems.map((item) =>
           item.id === productId
-            ? {
-                ...item,
-                quantity: clampQuantity(quantity, getCartItemLimit(item)),
-              }
+            ? { ...item, quantity: clampQuantity(quantity, getCartItemLimit(item)) }
             : item
         )
       )
@@ -195,6 +226,8 @@ export function StorefrontCartProvider({
     ]
   )
 
+  const activeVariants = activeProduct?.variants ?? []
+
   return (
     <StorefrontCartContext.Provider value={contextValue}>
       {children}
@@ -206,7 +239,7 @@ export function StorefrontCartProvider({
         >
           {activeProduct ? (
             <>
-              <div className="relative h-64 overflow-hidden border-b border-[#eadbca] bg-stone-100">
+              <div className="relative h-56 overflow-hidden border-b border-[#eadbca] bg-stone-100">
                 <Image
                   src={activeProduct.imageSrc}
                   alt={activeProduct.name}
@@ -230,12 +263,96 @@ export function StorefrontCartProvider({
                 </div>
               </SheetHeader>
 
-              <div className="flex flex-1 flex-col gap-5 px-6 py-6">
+              <div className="flex flex-1 flex-col gap-5 overflow-y-auto px-6 py-6">
+
+                {/* Variant selectors */}
+                {activeVariants.length > 0 && (
+                  <div className="flex flex-col gap-5 rounded-2xl border border-[#eadbca] bg-white p-4">
+                    {activeVariants.map((group) => {
+                      const selectedValue = sheetVariants[group.id]
+                      const selectedLabel = group.options.find((o) => o.value === selectedValue)?.label
+
+                      return (
+                        <div key={group.id}>
+                          <p className="mb-2.5 text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-[#8b6b56]">
+                            {group.label}
+                            {selectedLabel && (
+                              <span className="ml-2 font-normal normal-case tracking-normal text-[#2f231b]">
+                                — {selectedLabel}
+                              </span>
+                            )}
+                          </p>
+
+                          {group.type === "colour" ? (
+                            <div className="flex flex-wrap gap-2">
+                              {group.options.map((opt) => {
+                                const isSelected = selectedValue === opt.value
+                                const fill = opt.color ?? "#cccccc"
+                                return isSelected ? (
+                                  <button
+                                    key={opt.value}
+                                    type="button"
+                                    title={opt.label}
+                                    aria-label={opt.label}
+                                    aria-pressed="true"
+                                    onClick={() => setSheetVariants((prev) => ({ ...prev, [group.id]: opt.value }))}
+                                    className="size-8 scale-110 overflow-hidden rounded-full border-2 border-[#2f231b] shadow-md transition-all duration-150"
+                                  >
+                                    <svg viewBox="0 0 1 1" className="size-full" aria-hidden="true"><rect width="1" height="1" fill={fill} /></svg>
+                                  </button>
+                                ) : (
+                                  <button
+                                    key={opt.value}
+                                    type="button"
+                                    title={opt.label}
+                                    aria-label={opt.label}
+                                    aria-pressed="false"
+                                    onClick={() => setSheetVariants((prev) => ({ ...prev, [group.id]: opt.value }))}
+                                    className="size-8 overflow-hidden rounded-full border-2 border-transparent transition-all duration-150 hover:scale-105 hover:border-[#aaa]"
+                                  >
+                                    <svg viewBox="0 0 1 1" className="size-full" aria-hidden="true"><rect width="1" height="1" fill={fill} /></svg>
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          ) : (
+                            <div className="flex flex-wrap gap-2">
+                              {group.options.map((opt) => {
+                                const isSelected = selectedValue === opt.value
+                                return isSelected ? (
+                                  <button
+                                    key={opt.value}
+                                    type="button"
+                                    aria-pressed="true"
+                                    onClick={() => setSheetVariants((prev) => ({ ...prev, [group.id]: opt.value }))}
+                                    className="rounded-full border border-[#2f231b] bg-[#2f231b] px-3 py-1 text-sm font-semibold text-white transition-all duration-150"
+                                  >
+                                    {opt.label}
+                                  </button>
+                                ) : (
+                                  <button
+                                    key={opt.value}
+                                    type="button"
+                                    aria-pressed="false"
+                                    onClick={() => setSheetVariants((prev) => ({ ...prev, [group.id]: opt.value }))}
+                                    className="rounded-full border border-[#d7c8b8] bg-[#fbf7f0] px-3 py-1 text-sm font-semibold text-[#4b3a2e] transition-all duration-150 hover:border-[#2f231b] hover:text-[#2f231b]"
+                                  >
+                                    {opt.label}
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+
+                {/* Quantity / price */}
                 <div className="grid gap-4 sm:grid-cols-2">
                   <label className="flex flex-col gap-2">
-                    <span className="text-sm font-medium text-[#4b3a2e]">
-                      Quantity
-                    </span>
+                    <span className="text-sm font-medium text-[#4b3a2e]">Quantity</span>
                     <Input
                       aria-label="Quantity"
                       type="number"
@@ -249,21 +366,17 @@ export function StorefrontCartProvider({
                   </label>
 
                   <label className="flex flex-col gap-2">
-                    <span className="text-sm font-medium text-[#4b3a2e]">
-                      Unit price
-                    </span>
+                    <span className="text-sm font-medium text-[#4b3a2e]">Unit price</span>
                     <Input
                       aria-label="Unit price"
                       readOnly
-                      value={formatStorefrontPrice(activeProduct.unitPrice)}
+                      value={formatStorefrontPrice(resolvedUnitPrice)}
                       className="h-12 rounded-2xl border-[#ddcfbe] bg-[#f4ede3] text-[#2f231b]"
                     />
                   </label>
 
                   <label className="flex flex-col gap-2 sm:col-span-2">
-                    <span className="text-sm font-medium text-[#4b3a2e]">
-                      Total
-                    </span>
+                    <span className="text-sm font-medium text-[#4b3a2e]">Total</span>
                     <Input
                       aria-label="Total"
                       readOnly
@@ -275,8 +388,7 @@ export function StorefrontCartProvider({
 
                 {remainingStock === 0 ? (
                   <p className="rounded-2xl border border-[#ddcfbe] bg-[#f4ede3] px-4 py-3 text-sm text-[#6d5544]">
-                    You already have the full available stock of this item in your
-                    cart.
+                    You already have the full available stock of this item in your cart.
                   </p>
                 ) : (
                   <p className="text-sm text-[#6d5544]">
@@ -300,7 +412,7 @@ export function StorefrontCartProvider({
                   type="button"
                   onClick={handleAddToCart}
                   disabled={remainingStock === 0}
-                  className="rounded-full bg-[#b6492d] px-5 text-white hover:bg-[#c55335]"
+                  className="rounded-full bg-[#ffd3e3] px-5 text-[#1a2330] hover:bg-[#ffc5d8]"
                 >
                   Add to cart
                 </Button>

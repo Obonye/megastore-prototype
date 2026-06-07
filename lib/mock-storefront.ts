@@ -1,6 +1,7 @@
 export type StorefrontNavLink = {
   href: string
   label: string
+  comingSoon?: boolean
   items?: StorefrontNavLink[]
 }
 
@@ -64,6 +65,22 @@ export type TrendingStorefrontItem = {
   imageSrc: string
 }
 
+export type VariantOption = {
+  value: string
+  label: string
+  color?: string          // hex — for swatch rendering
+  imageSrc?: string       // swaps product image when selected
+  priceModifier?: number  // added to base unitPrice
+}
+
+export type VariantGroup = {
+  id: string
+  label: string
+  type: "colour" | "size" | "quantity"
+  options: VariantOption[]
+  defaultValue: string
+}
+
 export type StorefrontProduct = {
   id: string
   slug: string
@@ -78,6 +95,7 @@ export type StorefrontProduct = {
   finish: string
   imageSrc: string
   searchTerms: string[]
+  variants?: VariantGroup[]
 }
 
 export const storefrontNavbarData: StorefrontNavbarData = {
@@ -87,14 +105,19 @@ export const storefrontNavbarData: StorefrontNavbarData = {
     tagline: "Baking Supply Co.",
   },
   links: [
+    { href: "/products", label: "Shop All" },
     {
       href: "/products",
-      label: "Shop All",
+      label: "Products",
+      items: [
+        { href: "/products?category=Baking+Basics", label: "Ingredients" },
+        { href: "/products?category=Decorations", label: "Decor" },
+        { href: "/products?category=Cake+Boards", label: "Bakeware" },
+        { href: "/products?category=Packaging", label: "Packaging" },
+      ],
     },
-    { href: "/products?category=Baking+Basics", label: "Ingredients" },
-    { href: "/products?category=Tools", label: "Tools" },
-    { href: "/products?category=Cake+Boards", label: "Bakeware" },
-  
+    { href: "/contact", label: "Contact Us" },
+    { href: "/loyalty", label: "Loyalty Program", comingSoon: true },
   ],
   searchPlaceholder: "Search products...",
   cartLabel: "Cart",
@@ -358,6 +381,19 @@ export const storefrontProducts: StorefrontProduct[] = [
     finish: "24-piece tin",
     imageSrc: "/trending/piping-nozzle-collection.svg",
     searchTerms: ["piping", "nozzle", "tips", "cupcakes"],
+    variants: [
+      {
+        id: "quantity",
+        label: "Set size",
+        type: "quantity",
+        defaultValue: "24",
+        options: [
+          { value: "12", label: "12-piece", priceModifier: -80 },
+          { value: "24", label: "24-piece" },
+          { value: "48", label: "48-piece", priceModifier: 170 },
+        ],
+      },
+    ],
   },
   {
     id: "rolled-fondant-ivory",
@@ -375,6 +411,32 @@ export const storefrontProducts: StorefrontProduct[] = [
     imageSrc:
       "https://images.unsplash.com/photo-1582180834946-f3d376b18376?q=80&w=688&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     searchTerms: ["fondant", "wedding", "smooth", "covering"],
+    variants: [
+      {
+        id: "colour",
+        label: "Colour",
+        type: "colour",
+        defaultValue: "ivory",
+        options: [
+          { value: "ivory", label: "Ivory", color: "#f5edd6" },
+          { value: "blush", label: "Blush", color: "#ffd0da" },
+          { value: "white", label: "White", color: "#f8f8f8" },
+          { value: "chocolate", label: "Chocolate", color: "#6b3a2a" },
+          { value: "black", label: "Black", color: "#1a1a1a" },
+        ],
+      },
+      {
+        id: "size",
+        label: "Pack size",
+        type: "size",
+        defaultValue: "1kg",
+        options: [
+          { value: "500g", label: "500 g", priceModifier: -40 },
+          { value: "1kg", label: "1 kg" },
+          { value: "2kg", label: "2 kg", priceModifier: 90 },
+        ],
+      },
+    ],
   },
   {
     id: "rolled-fondant-blush",
@@ -392,6 +454,32 @@ export const storefrontProducts: StorefrontProduct[] = [
     imageSrc:
       "https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     searchTerms: ["fondant", "pink", "celebration", "baby shower"],
+    variants: [
+      {
+        id: "colour",
+        label: "Colour",
+        type: "colour",
+        defaultValue: "blush",
+        options: [
+          { value: "ivory", label: "Ivory", color: "#f5edd6" },
+          { value: "blush", label: "Blush", color: "#ffd0da" },
+          { value: "white", label: "White", color: "#f8f8f8" },
+          { value: "chocolate", label: "Chocolate", color: "#6b3a2a" },
+          { value: "black", label: "Black", color: "#1a1a1a" },
+        ],
+      },
+      {
+        id: "size",
+        label: "Pack size",
+        type: "size",
+        defaultValue: "1kg",
+        options: [
+          { value: "500g", label: "500 g", priceModifier: -45 },
+          { value: "1kg", label: "1 kg" },
+          { value: "2kg", label: "2 kg", priceModifier: 95 },
+        ],
+      },
+    ],
   },
   {
     id: "signature-cake-board-pack",
@@ -408,6 +496,31 @@ export const storefrontProducts: StorefrontProduct[] = [
     finish: "Pack of 6",
     imageSrc: "/trending/signature-cake-board-pack.svg",
     searchTerms: ["board", "presentation", "pickup", "display"],
+    variants: [
+      {
+        id: "size",
+        label: "Board size",
+        type: "size",
+        defaultValue: "8in",
+        options: [
+          { value: "6in", label: '6"', priceModifier: -30 },
+          { value: "8in", label: '8"' },
+          { value: "10in", label: '10"', priceModifier: 25 },
+          { value: "12in", label: '12"', priceModifier: 50 },
+        ],
+      },
+      {
+        id: "quantity",
+        label: "Quantity",
+        type: "quantity",
+        defaultValue: "6",
+        options: [
+          { value: "3", label: "Pack of 3", priceModifier: -50 },
+          { value: "6", label: "Pack of 6" },
+          { value: "12", label: "Pack of 12", priceModifier: 110 },
+        ],
+      },
+    ],
   },
   {
     id: "scalloped-display-board",
@@ -425,6 +538,20 @@ export const storefrontProducts: StorefrontProduct[] = [
     imageSrc:
       "https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=1189&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     searchTerms: ["board", "scalloped", "cake stand", "presentation"],
+    variants: [
+      {
+        id: "size",
+        label: "Board size",
+        type: "size",
+        defaultValue: "12in",
+        options: [
+          { value: "8in", label: '8"', priceModifier: -20 },
+          { value: "10in", label: '10"', priceModifier: -10 },
+          { value: "12in", label: '12"' },
+          { value: "14in", label: '14"', priceModifier: 30 },
+        ],
+      },
+    ],
   },
   {
     id: "celebration-ribbon-bundle",
@@ -441,6 +568,20 @@ export const storefrontProducts: StorefrontProduct[] = [
     finish: "Assorted widths",
     imageSrc: "/trending/celebration-ribbon-bundle.svg",
     searchTerms: ["ribbon", "packaging", "gift", "wrap"],
+    variants: [
+      {
+        id: "colour",
+        label: "Colour",
+        type: "colour",
+        defaultValue: "ivory",
+        options: [
+          { value: "ivory", label: "Ivory", color: "#f5edd6" },
+          { value: "blush", label: "Blush", color: "#ffd0da" },
+          { value: "sage", label: "Sage", color: "#b2c9b0" },
+          { value: "gold", label: "Gold", color: "#d4af37" },
+        ],
+      },
+    ],
   },
   {
     id: "window-cake-box-pair",
@@ -458,6 +599,19 @@ export const storefrontProducts: StorefrontProduct[] = [
     imageSrc:
       "https://images.unsplash.com/photo-1519869325930-281384150729?q=80&w=1064&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     searchTerms: ["box", "cake box", "window", "transport"],
+    variants: [
+      {
+        id: "size",
+        label: "Box size",
+        type: "size",
+        defaultValue: "8in",
+        options: [
+          { value: "6in", label: '6"', priceModifier: -30 },
+          { value: "8in", label: '8"' },
+          { value: "10in", label: '10"', priceModifier: 40 },
+        ],
+      },
+    ],
   },
   {
     id: "ombre-sprinkle-tin",
@@ -474,6 +628,32 @@ export const storefrontProducts: StorefrontProduct[] = [
     finish: "150 g tin",
     imageSrc: "/trending/ombre-sprinkle-tin.svg",
     searchTerms: ["sprinkles", "cupcakes", "cookies", "party"],
+    variants: [
+      {
+        id: "colour",
+        label: "Blend",
+        type: "colour",
+        defaultValue: "rainbow",
+        options: [
+          { value: "rainbow", label: "Rainbow", color: "#ff9f43" },
+          { value: "pink", label: "Pink", color: "#ffd0da" },
+          { value: "blue", label: "Blue", color: "#b3d4f5" },
+          { value: "gold", label: "Gold", color: "#d4af37" },
+          { value: "pastel", label: "Pastel", color: "#e8d5f0" },
+        ],
+      },
+      {
+        id: "size",
+        label: "Weight",
+        type: "size",
+        defaultValue: "150g",
+        options: [
+          { value: "75g", label: "75 g", priceModifier: -30 },
+          { value: "150g", label: "150 g" },
+          { value: "300g", label: "300 g", priceModifier: 55 },
+        ],
+      },
+    ],
   },
   {
     id: "golden-confetti-mix",
@@ -491,6 +671,19 @@ export const storefrontProducts: StorefrontProduct[] = [
     imageSrc:
       "https://images.unsplash.com/photo-1488477181946-6428a0291777?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     searchTerms: ["sprinkles", "gold", "pearls", "confetti"],
+    variants: [
+      {
+        id: "size",
+        label: "Weight",
+        type: "size",
+        defaultValue: "120g",
+        options: [
+          { value: "60g", label: "60 g", priceModifier: -35 },
+          { value: "120g", label: "120 g" },
+          { value: "240g", label: "240 g", priceModifier: 65 },
+        ],
+      },
+    ],
   },
   {
     id: "edible-lustre-duo",
@@ -524,6 +717,20 @@ export const storefrontProducts: StorefrontProduct[] = [
     imageSrc:
       "https://images.unsplash.com/photo-1517686469429-8bdb88b9f907?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     searchTerms: ["gel colour", "icing", "batter", "fondant"],
+    variants: [
+      {
+        id: "colour",
+        label: "Colour set",
+        type: "colour",
+        defaultValue: "primary",
+        options: [
+          { value: "primary", label: "Primary", color: "#e63946" },
+          { value: "warm", label: "Warm tones", color: "#f4a261" },
+          { value: "cool", label: "Cool tones", color: "#3a86ff" },
+          { value: "pastel", label: "Pastel", color: "#ffd0da" },
+        ],
+      },
+    ],
   },
   {
     id: "vanilla-bean-bake-bundle",

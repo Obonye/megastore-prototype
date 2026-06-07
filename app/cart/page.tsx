@@ -3,6 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import * as React from "react"
+import { MapPin, Package, Truck } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,6 +11,9 @@ import {
   formatStorefrontPrice,
   useStorefrontCart,
 } from "@/components/storefront-cart-provider"
+
+const DELIVERY_FEE = 50
+type CollectionMethod = "collection" | "delivery"
 
 export default function CartPage() {
   const {
@@ -20,14 +24,89 @@ export default function CartPage() {
     updateCartItemQuantity,
   } = useStorefrontCart()
 
+  const [method, setMethod] = React.useState<CollectionMethod>("collection")
+
+  const deliveryFee = method === "delivery" ? DELIVERY_FEE : 0
   const estimatedTax = cartSubtotal * 0.08
-  const orderTotal = cartSubtotal + estimatedTax
+  const orderTotal = cartSubtotal + deliveryFee + estimatedTax
 
   const summaryContent = (
     <>
       <h2 className="font-heading text-2xl font-semibold tracking-tight text-[#2f231b]">
         Order summary
       </h2>
+
+      {/* Collection method */}
+      <div className="mt-6">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#8b6b56]">
+          Collection method
+        </p>
+        <div className="grid grid-cols-2 gap-2">
+          {method === "collection" ? (
+            <button
+              type="button"
+              aria-pressed="true"
+              onClick={() => setMethod("collection")}
+              className="flex flex-col items-center gap-1.5 rounded-2xl border border-[#2f231b] bg-[#2f231b] px-3 py-3 text-center text-white transition-all duration-150"
+            >
+              <Package className="size-5" />
+              <span className="text-xs font-semibold">In-store</span>
+              <span className="text-[0.65rem] text-white/70">Free</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              aria-pressed="false"
+              onClick={() => setMethod("collection")}
+              className="flex flex-col items-center gap-1.5 rounded-2xl border border-[#ddcfbe] bg-white px-3 py-3 text-center text-[#4b3a2e] transition-all duration-150 hover:border-[#2f231b]"
+            >
+              <Package className="size-5" />
+              <span className="text-xs font-semibold">In-store</span>
+              <span className="text-[0.65rem] text-[#8b6b56]">Free</span>
+            </button>
+          )}
+          {method === "delivery" ? (
+            <button
+              type="button"
+              aria-pressed="true"
+              onClick={() => setMethod("delivery")}
+              className="flex flex-col items-center gap-1.5 rounded-2xl border border-[#2f231b] bg-[#2f231b] px-3 py-3 text-center text-white transition-all duration-150"
+            >
+              <Truck className="size-5" />
+              <span className="text-xs font-semibold">Delivery</span>
+              <span className="text-[0.65rem] text-white/70">{formatStorefrontPrice(DELIVERY_FEE)} flat</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              aria-pressed="false"
+              onClick={() => setMethod("delivery")}
+              className="flex flex-col items-center gap-1.5 rounded-2xl border border-[#ddcfbe] bg-white px-3 py-3 text-center text-[#4b3a2e] transition-all duration-150 hover:border-[#2f231b]"
+            >
+              <Truck className="size-5" />
+              <span className="text-xs font-semibold">Delivery</span>
+              <span className="text-[0.65rem] text-[#8b6b56]">{formatStorefrontPrice(DELIVERY_FEE)} flat</span>
+            </button>
+          )}
+        </div>
+
+        {method === "delivery" && (
+          <div className="mt-3 flex flex-col gap-2 rounded-2xl border border-[#ddcfbe] bg-[#f4ede3] p-3 text-xs text-[#6d5544]">
+            <p className="flex items-center gap-1.5 font-semibold text-[#4b3a2e]">
+              <MapPin className="size-3.5 shrink-0 text-[#8e0048]" />
+              Gaborone only
+            </p>
+            <p>
+              Delivery is available within Gaborone. Orders outside Gaborone must be collected in-store.
+            </p>
+            <p className="border-t border-[#ddd0c4] pt-2 text-[#8b6b56]">
+              Deliveries are handled by a third-party courier. We will share tracking details once your order is dispatched.
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Price breakdown */}
       <div className="mt-6 space-y-4 text-sm text-[#6d5544]">
         <div className="flex items-center justify-between gap-3">
           <span>Items</span>
@@ -39,6 +118,14 @@ export default function CartPage() {
             {formatStorefrontPrice(cartSubtotal)}
           </span>
         </div>
+        {method === "delivery" && (
+          <div className="flex items-center justify-between gap-3">
+            <span>Delivery</span>
+            <span className="font-medium text-[#2f231b]">
+              {formatStorefrontPrice(DELIVERY_FEE)}
+            </span>
+          </div>
+        )}
         <div className="flex items-center justify-between gap-3">
           <span>Estimated tax</span>
           <span className="font-medium text-[#2f231b]">
@@ -56,7 +143,7 @@ export default function CartPage() {
         </div>
       </div>
 
-      <Button className="mt-6 h-12 w-full rounded-full bg-[#b6492d] text-white hover:bg-[#c55335]">
+      <Button className="mt-6 h-12 w-full rounded-full bg-[#ffd3e3] text-[#1a2330] hover:bg-[#ffc5d8]">
         Proceed to checkout
       </Button>
       <Button
@@ -80,8 +167,7 @@ export default function CartPage() {
             Cart
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-7 text-[#6d5544] sm:text-lg">
-            Check quantities, remove items, and confirm the current mock order
-            before checkout.
+            Check quantities, select your collection method, and confirm before checkout.
           </p>
         </div>
 
@@ -89,7 +175,11 @@ export default function CartPage() {
           <div className="mt-10 grid gap-8 xl:grid-cols-[minmax(0,1.6fr)_minmax(20rem,0.85fr)]">
             <div className="space-y-4">
               {cartItems.map((item) => {
-                const lineSubtotal = item.quantity * item.unitPrice
+                const resolvedPrice = item.resolvedUnitPrice ?? item.unitPrice
+                const lineSubtotal = item.quantity * resolvedPrice
+                const variantEntries = item.selectedVariants
+                  ? Object.entries(item.selectedVariants)
+                  : []
 
                 return (
                   <article
@@ -114,7 +204,12 @@ export default function CartPage() {
                           <h2 className="mt-2 font-heading text-2xl font-semibold tracking-tight text-[#2f231b]">
                             {item.name}
                           </h2>
-                          <p className="mt-3 text-sm leading-6 text-[#6d5544]">
+                          {variantEntries.length > 0 && (
+                            <p className="mt-1.5 text-xs text-[#8b6b56]">
+                              {variantEntries.map(([, v]) => v).join(" · ")}
+                            </p>
+                          )}
+                          <p className="mt-2 text-sm leading-6 text-[#6d5544]">
                             {item.description}
                           </p>
                         </div>
@@ -155,7 +250,7 @@ export default function CartPage() {
                             Unit price
                           </span>
                           <div className="flex h-12 items-center rounded-2xl border border-[#ddcfbe] bg-[#f4ede3] px-4 text-sm text-[#2f231b]">
-                            {formatStorefrontPrice(item.unitPrice)}
+                            {formatStorefrontPrice(resolvedPrice)}
                           </div>
                         </div>
 
@@ -197,7 +292,7 @@ export default function CartPage() {
             </p>
             <Button
               asChild
-              className="mt-8 rounded-full bg-[#b6492d] px-6 text-white hover:bg-[#c55335]"
+              className="mt-8 rounded-full bg-[#ffd3e3] px-6 text-[#1a2330] hover:bg-[#ffc5d8]"
             >
               <Link href="/products">Shop products</Link>
             </Button>
@@ -209,13 +304,13 @@ export default function CartPage() {
             <div className="mx-auto flex max-w-7xl items-center gap-4">
               <div className="min-w-0 flex-1">
                 <p className="text-xs uppercase tracking-[0.2em] text-[#8b6b56]">
-                  Order total
+                  {method === "delivery" ? "Delivery · Gaborone" : "In-store collection"}
                 </p>
                 <p className="font-heading text-2xl font-semibold tracking-tight text-[#2f231b]">
                   {formatStorefrontPrice(orderTotal)}
                 </p>
               </div>
-              <Button className="h-12 shrink-0 rounded-full bg-[#b6492d] px-5 text-white hover:bg-[#c55335]">
+              <Button className="h-12 shrink-0 rounded-full bg-[#ffd3e3] px-5 text-[#1a2330] hover:bg-[#ffc5d8]">
                 Proceed to checkout
               </Button>
             </div>

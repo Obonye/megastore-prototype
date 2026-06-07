@@ -2,8 +2,7 @@
 
 import { useState } from "react"
 
-import { ArrowDown01Icon } from "@hugeicons/core-free-icons"
-import { HugeiconsIcon } from "@hugeicons/react"
+import { ChevronDown } from "lucide-react"
 
 type WhyShopItem = {
   title: string
@@ -46,7 +45,7 @@ export function WhyShopAccordion({
                 } ${indicatorClasses[index % indicatorClasses.length]}`}
                 aria-hidden="true"
               >
-                <HugeiconsIcon icon={ArrowDown01Icon} className="size-5" />
+                <ChevronDown className="size-5" />
               </span>
             </button>
 

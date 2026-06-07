@@ -4,6 +4,11 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Colour swatch buttons — background driven by a CSS custom property set via JS */
+.swatch-btn {
+  background: var(--swatch-color, #ccc);
+}
+
 :root {
     --background: #fffaf6;
     --foreground: oklch(0.145 0.008 326);

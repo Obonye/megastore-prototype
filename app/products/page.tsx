@@ -1,8 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 
-import { ShoppingCartAdd01Icon } from "@hugeicons/core-free-icons"
-import { HugeiconsIcon } from "@hugeicons/react"
+import { ShoppingCart } from "lucide-react"
 
 import { StorefrontAddToCartTrigger } from "@/components/storefront-add-to-cart-trigger"
 import { Button } from "@/components/ui/button"
@@ -14,13 +13,6 @@ import {
 } from "@/lib/mock-storefront"
 
 const PRODUCTS_PER_PAGE = 6
-
-const productCardAccentClasses = [
-  "bg-[#ff6b9a]",
-  "bg-[#32c7b0]",
-  "bg-[#ff9f43]",
-  "bg-[#7c8cff]",
-]
 
 const productCardHoverClasses = [
   "hover:bg-[#fff1f6]",
@@ -122,22 +114,6 @@ function buildProductsHref(
   return `/products?${query}`
 }
 
-function renderStars(count: number) {
-  return Array.from({ length: 5 }, (_, index) => (
-    <span
-      key={`star-${index}`}
-      aria-hidden="true"
-      className={index < count ? "text-[#b5005d]" : "text-[#d2b8c7]"}
-    >
-      ★
-    </span>
-  ))
-}
-
-const productSlugById = new Map(
-  storefrontProducts.map((product) => [product.id, product.slug])
-)
-
 export default async function ProductsPage({
   searchParams,
 }: ProductsPageProps) {
@@ -182,15 +158,6 @@ export default async function ProductsPage({
   )
   const categoryOptions = storefrontCategoryChips.filter((chip) =>
     storefrontProducts.some((product) => product.category === chip.label)
-  )
-  const categoryCounts = new Map(
-    storefrontProducts
-      .map((product) => product.category)
-      .map((label) => [
-        label,
-        storefrontProducts.filter((product) => product.category === label)
-          .length,
-      ])
   )
   const isEmptyCategorySelection =
     filteredProducts.length === 0 && Boolean(category) && !query
@@ -336,12 +303,10 @@ export default async function ProductsPage({
                       <StorefrontAddToCartTrigger
                         ariaLabel={`Add ${product.name} to cart`}
                         product={product}
-                        className={`relative z-20 size-11 shrink-0 rounded-full p-0 text-[#1a2330] transition-[transform,filter] duration-300 ease-out hover:-translate-y-0.5 hover:brightness-95 ${productCardAccentClasses[index % productCardAccentClasses.length]}`}
+                        className="relative z-20 h-9 shrink-0 rounded-full bg-[#ffd3e3] px-3 text-xs font-semibold text-[#1a2330] transition-[transform,filter] duration-300 ease-out hover:-translate-y-0.5 hover:bg-[#ffc5d8]"
                       >
-                        <HugeiconsIcon
-                          icon={ShoppingCartAdd01Icon}
-                          className="size-5"
-                        />
+                        <ShoppingCart className="size-4" />
+                        Add to cart
                       </StorefrontAddToCartTrigger>
                     </div>
                   </div>
