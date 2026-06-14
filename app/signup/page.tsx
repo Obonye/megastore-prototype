@@ -1,206 +1,243 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useState, type FormEvent } from "react"
 import Link from "next/link"
-import { ShoppingBag } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { Eye, EyeOff, ShoppingBag } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
-type Step = "credentials" | "otp"
-
 export default function SignupPage() {
-  const [step, setStep] = useState<Step>("credentials")
-  const [phone, setPhone] = useState("")
-  const [otp, setOtp] = useState(["", "", "", "", "", ""])
-  const otpRefs = useRef<(HTMLInputElement | null)[]>([])
+  const router = useRouter()
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [error, setError] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [message, setMessage] = useState("")
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
-  function handleCredentialsSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    setStep("otp")
-  }
+    const formData = new FormData(e.currentTarget)
 
-  function handleOtpChange(index: number, value: string) {
-    if (!/^\d*$/.test(value)) return
-    const next = [...otp]
-    next[index] = value.slice(-1)
-    setOtp(next)
-    if (value && index < 5) {
-      otpRefs.current[index + 1]?.focus()
+    if (password !== confirmPassword) {
+      setMessage("")
+      setError("Passwords do not match.")
+      return
     }
-  }
 
-  function handleOtpKeyDown(index: number, e: React.KeyboardEvent) {
-    if (e.key === "Backspace" && !otp[index] && index > 0) {
-      otpRefs.current[index - 1]?.focus()
+    setError("")
+    setMessage("")
+    setIsSubmitting(true)
+
+    try {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.get("name"),
+          email: formData.get("email"),
+          phone: formData.get("phone"),
+          password,
+          confirmPassword,
+        }),
+      })
+      const data = (await response.json()) as { error?: string }
+
+      if (!response.ok) {
+        setError(data.error ?? "Unable to create account.")
+        return
+      }
+
+      window.dispatchEvent(new Event("storefront-auth-changed"))
+      setMessage("Account created. You're signed in.")
+      router.push("/")
+      router.refresh()
+    } catch {
+      setError("Unable to create account. Please try again.")
+    } finally {
+      setIsSubmitting(false)
     }
-  }
-
-  function handleOtpSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    // Account creation logic goes here
   }
 
   return (
     <main className="flex min-h-[calc(100dvh-6rem)] items-center justify-center bg-[#fffaf6] px-4 py-16">
       <div className="w-full max-w-md">
-
-        {/* Brand mark */}
         <div className="mb-8 flex flex-col items-center gap-3 text-center">
           <div className="flex size-14 items-center justify-center rounded-full bg-[#ffd3e3]">
             <ShoppingBag className="size-6 text-[#8e0048]" />
           </div>
           <div>
-            <p className="font-heading text-2xl font-semibold tracking-[-0.04em] text-[#1a2330]">
+            <h1 className="font-heading text-2xl font-semibold tracking-[-0.04em] text-[#1a2330]">
               Create your account
-            </p>
+            </h1>
             <p className="mt-1 text-sm text-[#66717f]">
-              Join The Mega Store and start shopping
+              Join The Mega Store and start shopping.
             </p>
           </div>
         </div>
 
         <div className="rounded-[2rem] border border-[#e5ddd4] bg-white p-8 shadow-sm">
-          {step === "credentials" ? (
-            <form onSubmit={handleCredentialsSubmit} className="flex flex-col gap-5">
-              <label className="flex flex-col gap-1.5">
-                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[#5b6674]">
-                  Full name
-                </span>
-                <Input
-                  type="text"
-                  placeholder="Jane Doe"
-                  required
-                  className="h-12 rounded-full border-[#e5ddd4] bg-[#faf8f5] px-5 text-[#1a2330] placeholder:text-[#a89f97]"
-                />
-              </label>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            <label className="flex flex-col gap-1.5">
+              <span className="text-xs font-semibold tracking-[0.18em] text-[#5b6674] uppercase">
+                Full name
+              </span>
+              <Input
+                name="name"
+                type="text"
+                autoComplete="name"
+                placeholder="Jane Doe"
+                required
+                className="h-12 rounded-full border-[#e5ddd4] bg-[#faf8f5] px-5 text-[#1a2330] placeholder:text-[#a89f97]"
+              />
+            </label>
 
-              <label className="flex flex-col gap-1.5">
-                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[#5b6674]">
-                  Email address
-                </span>
-                <Input
-                  type="email"
-                  placeholder="you@example.com"
-                  required
-                  className="h-12 rounded-full border-[#e5ddd4] bg-[#faf8f5] px-5 text-[#1a2330] placeholder:text-[#a89f97]"
-                />
-              </label>
+            <label className="flex flex-col gap-1.5">
+              <span className="text-xs font-semibold tracking-[0.18em] text-[#5b6674] uppercase">
+                Email address
+              </span>
+              <Input
+                name="email"
+                type="email"
+                autoComplete="email"
+                placeholder="you@example.com"
+                required
+                className="h-12 rounded-full border-[#e5ddd4] bg-[#faf8f5] px-5 text-[#1a2330] placeholder:text-[#a89f97]"
+              />
+            </label>
 
-              <label className="flex flex-col gap-1.5">
-                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[#5b6674]">
-                  Phone number
-                </span>
-                <Input
-                  type="tel"
-                  placeholder="+267 7X XXX XXXX"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  required
-                  className="h-12 rounded-full border-[#e5ddd4] bg-[#faf8f5] px-5 text-[#1a2330] placeholder:text-[#a89f97]"
-                />
-              </label>
+            <label className="flex flex-col gap-1.5">
+              <span className="text-xs font-semibold tracking-[0.18em] text-[#5b6674] uppercase">
+                Phone number
+              </span>
+              <Input
+                name="phone"
+                type="tel"
+                autoComplete="tel"
+                placeholder="+267 7X XXX XXXX"
+                required
+                className="h-12 rounded-full border-[#e5ddd4] bg-[#faf8f5] px-5 text-[#1a2330] placeholder:text-[#a89f97]"
+              />
+            </label>
 
-              <label className="flex flex-col gap-1.5">
-                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[#5b6674]">
-                  Password
-                </span>
+            <label className="flex flex-col gap-1.5">
+              <span className="text-xs font-semibold tracking-[0.18em] text-[#5b6674] uppercase">
+                Password
+              </span>
+              <div className="relative">
                 <Input
-                  type="password"
-                  placeholder="••••••••"
-                  required
-                  minLength={8}
-                  className="h-12 rounded-full border-[#e5ddd4] bg-[#faf8f5] px-5 text-[#1a2330] placeholder:text-[#a89f97]"
-                />
-              </label>
-
-              <label className="flex flex-col gap-1.5">
-                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[#5b6674]">
-                  Confirm password
-                </span>
-                <Input
-                  type="password"
-                  placeholder="••••••••"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="new-password"
+                  placeholder="Create a password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={8}
-                  className="h-12 rounded-full border-[#e5ddd4] bg-[#faf8f5] px-5 text-[#1a2330] placeholder:text-[#a89f97]"
+                  aria-invalid={Boolean(error)}
+                  aria-describedby={error ? "signup-password-error" : undefined}
+                  className="h-12 rounded-full border-[#e5ddd4] bg-[#faf8f5] px-5 pr-12 text-[#1a2330] placeholder:text-[#a89f97]"
                 />
-              </label>
+                <button
+                  type="button"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  onClick={() => setShowPassword((current) => !current)}
+                  className="absolute top-1/2 right-4 -translate-y-1/2 rounded-full p-1 text-[#66717f] transition-colors hover:text-[#1a2330] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                >
+                  {showPassword ? (
+                    <EyeOff className="size-4" aria-hidden="true" />
+                  ) : (
+                    <Eye className="size-4" aria-hidden="true" />
+                  )}
+                </button>
+              </div>
+            </label>
 
-              <p className="text-xs leading-5 text-[#8e9aab]">
-                By creating an account you agree to our{" "}
-                <Link href="/terms" className="font-semibold text-[#8e0048] hover:text-[#6f0038]">
-                  Terms of use
-                </Link>{" "}
-                and{" "}
-                <Link href="/privacy" className="font-semibold text-[#8e0048] hover:text-[#6f0038]">
-                  Privacy policy
-                </Link>
-                .
+            <label className="flex flex-col gap-1.5">
+              <span className="text-xs font-semibold tracking-[0.18em] text-[#5b6674] uppercase">
+                Confirm password
+              </span>
+              <div className="relative">
+                <Input
+                  name="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  autoComplete="new-password"
+                  placeholder="Re-enter your password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  minLength={8}
+                  aria-invalid={Boolean(error)}
+                  aria-describedby={error ? "signup-password-error" : undefined}
+                  className="h-12 rounded-full border-[#e5ddd4] bg-[#faf8f5] px-5 pr-12 text-[#1a2330] placeholder:text-[#a89f97]"
+                />
+                <button
+                  type="button"
+                  aria-label={
+                    showConfirmPassword
+                      ? "Hide password confirmation"
+                      : "Show password confirmation"
+                  }
+                  onClick={() => setShowConfirmPassword((current) => !current)}
+                  className="absolute top-1/2 right-4 -translate-y-1/2 rounded-full p-1 text-[#66717f] transition-colors hover:text-[#1a2330] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="size-4" aria-hidden="true" />
+                  ) : (
+                    <Eye className="size-4" aria-hidden="true" />
+                  )}
+                </button>
+              </div>
+            </label>
+
+            {error ? (
+              <p
+                id="signup-password-error"
+                className="rounded-2xl bg-[#fff0f4] px-4 py-3 text-sm font-medium text-[#8e0048]"
+                role="alert"
+              >
+                {error}
               </p>
+            ) : null}
 
-              <Button
-                type="submit"
-                className="h-12 w-full rounded-full bg-[#ffd3e3] text-sm font-semibold tracking-[0.12em] text-[#1a2330] uppercase hover:bg-[#ffc5d8]"
+            <p className="text-xs leading-5 text-[#8e9aab]">
+              By creating an account you agree to our{" "}
+              <Link
+                href="/terms"
+                className="font-semibold text-[#8e0048] hover:text-[#6f0038]"
               >
-                Create account
-              </Button>
-            </form>
-          ) : (
-            <form onSubmit={handleOtpSubmit} className="flex flex-col gap-6">
-              <div className="text-center">
-                <p className="font-heading text-lg font-semibold text-[#1a2330]">
-                  Verify your phone
-                </p>
-                <p className="mt-1.5 text-sm text-[#66717f]">
-                  We sent a 6-digit code to{" "}
-                  <span className="font-semibold text-[#1a2330]">{phone || "your phone"}</span>
-                </p>
-              </div>
-
-              <div className="flex justify-center gap-3">
-                {otp.map((digit, i) => (
-                  <input
-                    key={i}
-                    ref={(el) => { otpRefs.current[i] = el }}
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={1}
-                    value={digit}
-                    aria-label={`OTP digit ${i + 1}`}
-                    onChange={(e) => handleOtpChange(i, e.target.value)}
-                    onKeyDown={(e) => handleOtpKeyDown(i, e)}
-                    className="size-12 rounded-2xl border border-[#e5ddd4] bg-[#faf8f5] text-center text-lg font-semibold text-[#1a2330] outline-none transition-colors focus:border-[#ff6b9a] focus:ring-2 focus:ring-[#ffd3e3]"
-                  />
-                ))}
-              </div>
-
-              <Button
-                type="submit"
-                disabled={otp.some((d) => !d)}
-                className="h-12 w-full rounded-full bg-[#ffd3e3] text-sm font-semibold tracking-[0.12em] text-[#1a2330] uppercase hover:bg-[#ffc5d8] disabled:opacity-50"
+                Terms of use
+              </Link>{" "}
+              and{" "}
+              <Link
+                href="/privacy"
+                className="font-semibold text-[#8e0048] hover:text-[#6f0038]"
               >
-                Verify &amp; Create account
-              </Button>
+                Privacy policy
+              </Link>
+              .
+            </p>
 
-              <div className="text-center">
-                <button
-                  type="button"
-                  onClick={() => setStep("credentials")}
-                  className="text-sm text-[#66717f] underline-offset-2 hover:underline"
-                >
-                  Go back
-                </button>
-                <span className="mx-2 text-[#d4ccc6]">·</span>
-                <button
-                  type="button"
-                  className="text-sm font-semibold text-[#8e0048] transition-colors hover:text-[#6f0038]"
-                >
-                  Resend code
-                </button>
-              </div>
-            </form>
-          )}
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="h-12 w-full rounded-full bg-[#ffd3e3] text-sm font-semibold tracking-[0.12em] text-[#1a2330] uppercase hover:bg-[#ffc5d8]"
+            >
+              {isSubmitting ? "Creating account..." : "Create account"}
+            </Button>
+
+            {message ? (
+              <p
+                className="rounded-2xl bg-[#e8fbf7] px-4 py-3 text-sm font-medium text-[#146b5d]"
+                role="status"
+              >
+                {message}
+              </p>
+            ) : null}
+          </form>
         </div>
 
         <p className="mt-6 text-center text-sm text-[#66717f]">
