@@ -1,11 +1,25 @@
 import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
-import { describe, expect, it } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { StorefrontCartProvider } from "@/components/storefront-cart-provider"
 import { SiteNavbar } from "@/components/site-navbar"
 
+const fetchMock = vi.fn()
+
 describe("SiteNavbar", () => {
+  beforeEach(() => {
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify({ user: null }), { status: 200 })
+    )
+    vi.stubGlobal("fetch", fetchMock)
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    fetchMock.mockReset()
+  })
+
   it("renders the storefront brand, search, top-level nav links, and cart", () => {
     render(
       <StorefrontCartProvider>
@@ -20,9 +34,7 @@ describe("SiteNavbar", () => {
     expect(
       screen.getAllByRole("link", { name: "Shop All" }).length
     ).toBeGreaterThan(0)
-    expect(
-      screen.getAllByRole("link", { name: "Ingredients" }).length
-    ).toBeGreaterThan(0)
+    expect(screen.getByRole("button", { name: "Products" })).toBeInTheDocument()
     expect(screen.getByRole("link", { name: /cart/i })).toBeInTheDocument()
   })
 
@@ -57,10 +69,74 @@ describe("SiteNavbar", () => {
 
     expect(screen.getByText("Browse the shop")).toBeInTheDocument()
     expect(
-      screen.getAllByRole("link", { name: "Recipes" }).length
+      screen.getAllByRole("link", { name: "Ingredients" }).length
     ).toBeGreaterThan(0)
     expect(
       screen.getAllByRole("link", { name: "Shop All" }).length
     ).toBeGreaterThan(0)
+  })
+
+  it("shows login instead of the compact mobile cart when signed out", () => {
+    render(
+      <StorefrontCartProvider>
+        <SiteNavbar />
+      </StorefrontCartProvider>
+    )
+
+    expect(
+      screen.queryByRole("link", { name: /open basket/i })
+    ).not.toBeInTheDocument()
+    expect(
+      screen.getAllByRole("link", { name: "Login" }).length
+    ).toBeGreaterThan(1)
+  })
+
+  it("shows a signed-in greeting with a signout action", async () => {
+    const user = userEvent.setup()
+    fetchMock.mockImplementation((input: RequestInfo | URL) => {
+      const url = String(input)
+
+      if (url === "/api/auth/me") {
+        return Promise.resolve(
+          new Response(JSON.stringify({ user: { name: "Jane Doe" } }), {
+            status: 200,
+          })
+        )
+      }
+
+      return Promise.resolve(
+        new Response(JSON.stringify({ ok: true }), { status: 200 })
+      )
+    })
+
+    render(
+      <StorefrontCartProvider>
+        <SiteNavbar />
+      </StorefrontCartProvider>
+    )
+
+    const greeting = await screen.findByRole("button", {
+      name: /hi, jane doe/i,
+    })
+
+    expect(
+      screen.getByRole("link", { name: /open basket/i })
+    ).toBeInTheDocument()
+
+    await user.click(greeting)
+
+    expect(screen.getByRole("menuitem", { name: /profile/i })).toHaveAttribute(
+      "href",
+      "/profile"
+    )
+
+    await user.click(screen.getByRole("menuitem", { name: /sign out/i }))
+
+    expect(fetchMock).toHaveBeenCalledWith("/api/auth/signout", {
+      method: "POST",
+    })
+    expect(
+      screen.getAllByRole("link", { name: "Login" }).length
+    ).toBeGreaterThan(1)
   })
 })

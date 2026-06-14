@@ -1,20 +1,40 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 
-import { ArrowRight, ChevronDown, Menu, Search, ShoppingCart } from "lucide-react"
+import {
+  ArrowRight,
+  ChevronDown,
+  Menu,
+  Search,
+  ShoppingCart,
+} from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useStorefrontCart } from "@/components/storefront-cart-provider"
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
   Sheet,
   SheetContent,
+  SheetDescription,
+  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { storefrontNavbarData } from "@/lib/mock-storefront"
+
+type CurrentUserResponse = {
+  user: {
+    name: string
+  } | null
+}
 
 const mobileNavChevronClasses = [
   "text-[#ff6b9a]",
@@ -34,10 +54,46 @@ export function SiteNavbar() {
   const { brand, cartLabel, links, searchPlaceholder } = storefrontNavbarData
   const { cartCount } = useStorefrontCart()
   const searchParams = useSearchParams()
-  const currentQuery = searchParams.get("q") ?? ""
+  const currentQuery = searchParams?.get("q") ?? ""
+  const [customerName, setCustomerName] = useState<string | null>(null)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
 
+  async function readCurrentUser() {
+    try {
+      const response = await fetch("/api/auth/me")
+
+      if (!response.ok) {
+        return null
+      }
+
+      const data = (await response.json()) as CurrentUserResponse
+      return data.user?.name ?? null
+    } catch {
+      return null
+    }
+  }
+
+  async function handleSignOut() {
+    await fetch("/api/auth/signout", { method: "POST" })
+    setCustomerName(null)
+    setIsMenuOpen(false)
+    window.location.reload()
+  }
+
+  useEffect(() => {
+    function handleAuthChanged() {
+      void readCurrentUser().then(setCustomerName)
+    }
+
+    void readCurrentUser().then(setCustomerName)
+
+    window.addEventListener("storefront-auth-changed", handleAuthChanged)
+
+    return () => {
+      window.removeEventListener("storefront-auth-changed", handleAuthChanged)
+    }
+  }, [])
 
   return (
     <header className="sticky top-0 z-50 border-b border-[oklch(0.86_0.03_40)] bg-[rgba(252,248,242,0.9)] backdrop-blur-xl">
@@ -98,7 +154,9 @@ export function SiteNavbar() {
                       <span
                         aria-hidden="true"
                         className={`absolute bottom-0 left-0 h-[3px] w-full origin-left rounded-full transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                          desktopNavUnderlineClasses[index % desktopNavUnderlineClasses.length]
+                          desktopNavUnderlineClasses[
+                            index % desktopNavUnderlineClasses.length
+                          ]
                         } ${isOpen ? "scale-x-100" : "scale-x-0"}`}
                       />
                     </button>
@@ -132,7 +190,9 @@ export function SiteNavbar() {
                   <span
                     aria-hidden="true"
                     className={`absolute bottom-0 left-0 h-[3px] w-full origin-left scale-x-0 rounded-full transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-x-100 group-focus-visible:scale-x-100 ${
-                      desktopNavUnderlineClasses[index % desktopNavUnderlineClasses.length]
+                      desktopNavUnderlineClasses[
+                        index % desktopNavUnderlineClasses.length
+                      ]
                     }`}
                   />
                 </Link>
@@ -166,30 +226,71 @@ export function SiteNavbar() {
               </Link>
             </Button>
 
-            <Button
-              asChild
-              variant="ghost"
-              className="h-12 rounded-full px-5 text-base font-semibold tracking-[0.16em] text-[oklch(0.23_0.03_30)] uppercase hover:bg-[oklch(0.97_0.02_40)]"
-            >
-              <Link href="/login">Login</Link>
-            </Button>
+            {customerName ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="h-12 rounded-full px-5 text-base font-semibold text-[oklch(0.23_0.03_30)] hover:bg-[oklch(0.97_0.02_40)]"
+                  >
+                    Hi, {customerName}
+                    <ChevronDown data-icon="inline-end" className="size-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  className="border border-[oklch(0.86_0.03_40)] bg-[#fffaf6] text-[oklch(0.23_0.03_30)]"
+                >
+                  <DropdownMenuItem
+                    asChild
+                    className="cursor-pointer font-semibold text-[oklch(0.23_0.03_30)] hover:bg-[oklch(0.96_0.02_40)] focus:bg-[oklch(0.96_0.02_40)] focus:text-[oklch(0.23_0.03_30)]"
+                  >
+                    <Link href="/profile">Profile</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onSelect={() => void handleSignOut()}
+                    className="cursor-pointer font-semibold text-[#8e0048] hover:bg-[#fff0f4] focus:bg-[#fff0f4] focus:text-[#8e0048]"
+                  >
+                    Sign out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button
+                asChild
+                variant="ghost"
+                className="h-12 rounded-full px-5 text-base font-semibold tracking-[0.16em] text-[oklch(0.23_0.03_30)] uppercase hover:bg-[oklch(0.97_0.02_40)]"
+              >
+                <Link href="/login">Login</Link>
+              </Button>
+            )}
           </div>
 
           {/* Mobile controls */}
           <div className="flex items-center gap-2 lg:hidden">
-            <Button
-              asChild
-              variant="ghost"
-              className="h-10 rounded-full border border-[oklch(0.86_0.03_40)] px-3 text-[oklch(0.23_0.03_30)] hover:bg-[oklch(0.97_0.02_40)]"
-              aria-label="Open basket"
-            >
-              <Link href="/cart">
-                <ShoppingCart />
-                <span className="rounded-full bg-[oklch(0.68_0.18_350)] px-2 py-0.5 text-center text-[10px] leading-none font-semibold text-white">
-                  {cartCount}
-                </span>
-              </Link>
-            </Button>
+            {customerName ? (
+              <Button
+                asChild
+                variant="ghost"
+                className="h-10 rounded-full border border-[oklch(0.86_0.03_40)] px-3 text-[oklch(0.23_0.03_30)] hover:bg-[oklch(0.97_0.02_40)]"
+                aria-label="Open basket"
+              >
+                <Link href="/cart">
+                  <ShoppingCart />
+                  <span className="rounded-full bg-[oklch(0.68_0.18_350)] px-2 py-0.5 text-center text-[10px] leading-none font-semibold text-white">
+                    {cartCount}
+                  </span>
+                </Link>
+              </Button>
+            ) : (
+              <Button
+                asChild
+                variant="ghost"
+                className="h-10 rounded-full border border-[oklch(0.86_0.03_40)] px-4 text-xs font-semibold tracking-[0.14em] text-[oklch(0.23_0.03_30)] uppercase hover:bg-[oklch(0.97_0.02_40)]"
+              >
+                <Link href="/login">Login</Link>
+              </Button>
+            )}
 
             <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
               <SheetTrigger asChild>
@@ -205,9 +306,16 @@ export function SiteNavbar() {
               </SheetTrigger>
               <SheetContent
                 side="right"
-                className="!inset-0 !left-0 !right-0 !h-dvh !w-screen !max-w-none border-0 bg-[#fffaf6] text-[oklch(0.23_0.03_30)] sm:!inset-y-0 sm:!right-0 sm:!left-auto sm:!h-full sm:!w-[25rem] sm:!max-w-sm sm:border-l sm:border-[oklch(0.86_0.03_40)]"
+                className="!inset-0 !right-0 !left-0 !h-dvh !w-screen !max-w-none border-0 bg-[#fffaf6] text-[oklch(0.23_0.03_30)] sm:!inset-y-0 sm:!right-0 sm:!left-auto sm:!h-full sm:!w-[25rem] sm:!max-w-sm sm:border-l sm:border-[oklch(0.86_0.03_40)]"
               >
-                <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 pb-5 pt-16 sm:px-6 sm:pb-6 sm:pt-16">
+                <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 pt-16 pb-5 sm:px-6 sm:pt-16 sm:pb-6">
+                  <SheetTitle className="font-heading text-2xl font-semibold tracking-[-0.04em] text-black">
+                    Browse the shop
+                  </SheetTitle>
+                  <SheetDescription className="sr-only">
+                    Use this menu to search, browse categories, view your cart,
+                    or manage your account.
+                  </SheetDescription>
                   <form action="/products" className="relative">
                     <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-[oklch(0.57_0.03_45)]" />
                     <Input
@@ -282,20 +390,62 @@ export function SiteNavbar() {
                     })}
                   </nav>
 
-                  <div className="mt-auto pt-6">
-                    <Button
-                      asChild
-                      variant="ghost"
-                      className="h-12 w-full rounded-full border-0 bg-[#d9dcff] text-base font-semibold text-[oklch(0.23_0.03_30)] hover:bg-[#cdd2ff]"
-                    >
-                      <Link href="/cart" onClick={() => setIsMenuOpen(false)}>
-                        <ShoppingCart data-icon="inline-start" />
-                        {cartLabel}
-                        <span className="rounded-full bg-[oklch(0.68_0.18_350)] px-2 py-0.5 text-xs text-white">
-                          {cartCount}
-                        </span>
-                      </Link>
-                    </Button>
+                  <div className="mt-auto flex flex-col gap-3 pt-6">
+                    {customerName ? (
+                      <div className="rounded-3xl border border-[oklch(0.86_0.03_40)] bg-white p-3">
+                        <p className="px-2 pb-2 text-base font-semibold text-[oklch(0.23_0.03_30)]">
+                          Hi, {customerName}
+                        </p>
+                        <Button
+                          asChild
+                          variant="ghost"
+                          className="mb-2 h-11 w-full rounded-full bg-[#f4f1ff] text-base font-semibold text-[#29318e] hover:bg-[#ebe7ff]"
+                        >
+                          <Link
+                            href="/profile"
+                            onClick={() => setIsMenuOpen(false)}
+                          >
+                            Profile
+                          </Link>
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          onClick={() => void handleSignOut()}
+                          className="h-11 w-full rounded-full bg-[#fff0f4] text-base font-semibold text-[#8e0048] hover:bg-[#ffe2eb]"
+                        >
+                          Sign out
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button
+                        asChild
+                        variant="ghost"
+                        className="h-12 w-full rounded-full border border-[oklch(0.86_0.03_40)] bg-white text-base font-semibold tracking-[0.16em] text-[oklch(0.23_0.03_30)] uppercase hover:bg-[oklch(0.97_0.02_40)]"
+                      >
+                        <Link
+                          href="/login"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          Login
+                        </Link>
+                      </Button>
+                    )}
+                    {customerName ? (
+                      <Button
+                        asChild
+                        variant="ghost"
+                        className="h-12 w-full rounded-full border-0 bg-[#d9dcff] text-base font-semibold text-[oklch(0.23_0.03_30)] hover:bg-[#cdd2ff]"
+                      >
+                        <Link href="/cart" onClick={() => setIsMenuOpen(false)}>
+                          <ShoppingCart data-icon="inline-start" />
+                          {cartLabel}
+                          <span className="rounded-full bg-[oklch(0.68_0.18_350)] px-2 py-0.5 text-xs text-white">
+                            {cartCount}
+                          </span>
+                        </Link>
+                      </Button>
+                    ) : null}
                   </div>
                 </div>
               </SheetContent>
