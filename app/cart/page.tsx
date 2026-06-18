@@ -5,6 +5,7 @@ import Link from "next/link"
 import * as React from "react"
 import { MapPin, Package, Truck } from "lucide-react"
 
+import { LoadingIndicator } from "@/components/loading-indicator"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -20,6 +21,8 @@ export default function CartPage() {
     cartCount,
     cartItems,
     cartSubtotal,
+    isCartLoading,
+    pendingCartItemIds,
     removeCartItem,
     updateCartItemQuantity,
   } = useStorefrontCart()
@@ -27,8 +30,7 @@ export default function CartPage() {
   const [method, setMethod] = React.useState<CollectionMethod>("collection")
 
   const deliveryFee = method === "delivery" ? DELIVERY_FEE : 0
-  const estimatedTax = cartSubtotal * 0.08
-  const orderTotal = cartSubtotal + deliveryFee + estimatedTax
+  const orderTotal = cartSubtotal + deliveryFee
 
   const summaryContent = (
     <>
@@ -126,12 +128,6 @@ export default function CartPage() {
             </span>
           </div>
         )}
-        <div className="flex items-center justify-between gap-3">
-          <span>Estimated tax</span>
-          <span className="font-medium text-[#2f231b]">
-            {formatStorefrontPrice(estimatedTax)}
-          </span>
-        </div>
       </div>
 
       <div className="mt-6 border-t border-[#eadbca] pt-6">
@@ -143,8 +139,11 @@ export default function CartPage() {
         </div>
       </div>
 
-      <Button className="mt-6 h-12 w-full rounded-full bg-[#ffd3e3] text-[#1a2330] hover:bg-[#ffc5d8]">
-        Proceed to checkout
+      <Button
+        asChild
+        className="mt-6 h-12 w-full rounded-full bg-[#ffd3e3] text-[#1a2330] hover:bg-[#ffc5d8]"
+      >
+        <Link href="/checkout">Proceed to checkout</Link>
       </Button>
       <Button
         asChild
@@ -169,12 +168,27 @@ export default function CartPage() {
           <p className="mt-4 max-w-2xl text-base leading-7 text-[#6d5544] sm:text-lg">
             Check quantities, select your collection method, and confirm before checkout.
           </p>
+          {isCartLoading && cartItems.length > 0 ? (
+            <LoadingIndicator
+              label="Refreshing your cart..."
+              className="mt-4 text-[#6d5544]"
+            />
+          ) : null}
         </div>
 
-        {cartItems.length > 0 ? (
+        {isCartLoading && cartItems.length === 0 ? (
+          <div className="mt-10 rounded-[2rem] border border-[#ddcfbe] bg-[#fbf7f0] px-6 py-14 text-center shadow-[0_18px_45px_rgba(63,41,24,0.05)]">
+            <LoadingIndicator
+              label="Loading your cart..."
+              className="justify-center text-[#4b3a2e]"
+            />
+          </div>
+        ) : cartItems.length > 0 ? (
           <div className="mt-10 grid gap-8 xl:grid-cols-[minmax(0,1.6fr)_minmax(20rem,0.85fr)]">
             <div className="space-y-4">
               {cartItems.map((item) => {
+                const itemKey = item.cartItemId ?? item.id
+                const isItemPending = pendingCartItemIds.includes(itemKey)
                 const resolvedPrice = item.resolvedUnitPrice ?? item.unitPrice
                 const lineSubtotal = item.quantity * resolvedPrice
                 const variantEntries = item.selectedVariants
@@ -183,7 +197,7 @@ export default function CartPage() {
 
                 return (
                   <article
-                    key={item.id}
+                    key={itemKey}
                     className="grid gap-5 rounded-[1.75rem] border border-[rgba(120,87,62,0.14)] bg-[#fbf7f0] p-5 shadow-[0_18px_45px_rgba(63,41,24,0.08)] md:grid-cols-[10rem_minmax(0,1fr)]"
                   >
                     <div className="relative h-44 overflow-hidden rounded-[1.25rem] bg-stone-100">
@@ -217,10 +231,15 @@ export default function CartPage() {
                         <Button
                           type="button"
                           variant="outline"
-                          onClick={() => removeCartItem(item.id)}
+                          onClick={() => removeCartItem(itemKey)}
+                          disabled={isItemPending}
                           className="rounded-full border-[#ddcfbe] bg-transparent px-4 text-[#7a4e3b] hover:bg-[#f3e6d8] hover:text-[#5a3629]"
                         >
-                          Remove
+                          {isItemPending ? (
+                            <LoadingIndicator label="Saving..." />
+                          ) : (
+                            "Remove"
+                          )}
                         </Button>
                       </div>
 
@@ -237,10 +256,11 @@ export default function CartPage() {
                             value={item.quantity}
                             onChange={(event) =>
                               updateCartItemQuantity(
-                                item.id,
+                                itemKey,
                                 Number(event.target.value)
                               )
                             }
+                            disabled={isItemPending}
                             className="h-12 rounded-2xl border-[#ddcfbe] bg-white text-[#2f231b]"
                           />
                         </label>
@@ -267,6 +287,12 @@ export default function CartPage() {
                       <p className="text-sm text-[#6d5544]">
                         {item.stock} units available in stock.
                       </p>
+                      {isItemPending ? (
+                        <LoadingIndicator
+                          label="Saving item changes..."
+                          className="text-[#6d5544]"
+                        />
+                      ) : null}
                     </div>
                   </article>
                 )
@@ -310,8 +336,11 @@ export default function CartPage() {
                   {formatStorefrontPrice(orderTotal)}
                 </p>
               </div>
-              <Button className="h-12 shrink-0 rounded-full bg-[#ffd3e3] px-5 text-[#1a2330] hover:bg-[#ffc5d8]">
-                Proceed to checkout
+              <Button
+                asChild
+                className="h-12 shrink-0 rounded-full bg-[#ffd3e3] px-5 text-[#1a2330] hover:bg-[#ffc5d8]"
+              >
+                <Link href="/checkout">Proceed to checkout</Link>
               </Button>
             </div>
           </div>

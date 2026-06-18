@@ -3,6 +3,7 @@
 import Image from "next/image"
 import * as React from "react"
 
+import { LoadingIndicator } from "@/components/loading-indicator"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -29,17 +30,32 @@ type StorefrontPurchasableProduct = {
 }
 
 type StorefrontCartItem = StorefrontPurchasableProduct & {
+  cartItemId?: string
   quantity: number
   selectedVariants?: Record<string, string>
   resolvedUnitPrice: number
 }
 
+type StorefrontCartApiResponse = {
+  items: StorefrontCartItem[]
+}
+
 type StorefrontCartContextValue = {
+  addCartItem: (
+    product: StorefrontPurchasableProduct,
+    quantity: number,
+    selectedVariants?: Record<string, string>
+  ) => Promise<boolean>
   cartCount: number
   cartItems: StorefrontCartItem[]
   cartSubtotal: number
   closeProductSheet: () => void
-  openProductSheet: (product: StorefrontPurchasableProduct) => void
+  isCartLoading: boolean
+  openProductSheet: (
+    product: StorefrontPurchasableProduct,
+    selectedVariants?: Record<string, string>
+  ) => void
+  pendingCartItemIds: string[]
   removeCartItem: (productId: string) => void
   updateCartItemQuantity: (productId: string, quantity: number) => void
 }
@@ -77,6 +93,11 @@ function defaultVariantSelections(variants?: VariantGroup[]): Record<string, str
   return Object.fromEntries(variants.map((v) => [v.id, v.defaultValue]))
 }
 
+function redirectToLogin() {
+  const next = `${window.location.pathname}${window.location.search}`
+  window.location.assign(`/login?next=${encodeURIComponent(next)}`)
+}
+
 export function StorefrontCartProvider({
   children,
 }: {
@@ -86,8 +107,92 @@ export function StorefrontCartProvider({
     React.useState<StorefrontPurchasableProduct | null>(null)
   const [cartItems, setCartItems] = React.useState<StorefrontCartItem[]>([])
   const [isSheetOpen, setIsSheetOpen] = React.useState(false)
+  const [isAddingFromSheet, setIsAddingFromSheet] = React.useState(false)
+  const [isCartLoading, setIsCartLoading] = React.useState(true)
+  const [pendingCartItemIds, setPendingCartItemIds] = React.useState<Set<string>>(
+    () => new Set()
+  )
   const [quantity, setQuantity] = React.useState(1)
   const [sheetVariants, setSheetVariants] = React.useState<Record<string, string>>({})
+  const [areSheetVariantsLocked, setAreSheetVariantsLocked] = React.useState(false)
+  const cartItemUpdateVersions = React.useRef(new Map<string, number>())
+
+  const applyCartResponse = React.useCallback(async (response: Response, redirectOnUnauthorized = true) => {
+    if (response.status === 401) {
+      if (redirectOnUnauthorized) {
+        redirectToLogin()
+      } else {
+        setCartItems([])
+      }
+      return false
+    }
+
+    if (!response.ok) return false
+
+    const data = (await response.json()) as Partial<StorefrontCartApiResponse>
+    setCartItems(Array.isArray(data.items) ? [...data.items] : [])
+    return true
+  }, [])
+
+  const refreshCart = React.useCallback(async () => {
+    setIsCartLoading(true)
+    try {
+      await applyCartResponse(await fetch("/api/cart"), false)
+    } catch {
+      setCartItems([])
+    } finally {
+      setIsCartLoading(false)
+    }
+  }, [applyCartResponse])
+
+  const setCartItemPending = React.useCallback((cartItemId: string, pending: boolean) => {
+    setPendingCartItemIds((currentIds) => {
+      const nextIds = new Set(currentIds)
+
+      if (pending) {
+        nextIds.add(cartItemId)
+      } else {
+        nextIds.delete(cartItemId)
+      }
+
+      return nextIds
+    })
+  }, [])
+
+  const ensureSignedIn = React.useCallback(async () => {
+    try {
+      const response = await fetch("/api/auth/me")
+      if (!response.ok) {
+        redirectToLogin()
+        return false
+      }
+
+      const data = (await response.json()) as { user: unknown | null }
+      if (!data.user) {
+        redirectToLogin()
+        return false
+      }
+
+      return true
+    } catch {
+      redirectToLogin()
+      return false
+    }
+  }, [])
+
+  React.useEffect(() => {
+    function handleAuthChanged() {
+      void refreshCart()
+    }
+
+    const hydrateCartId = window.setTimeout(() => void refreshCart(), 0)
+    window.addEventListener("storefront-auth-changed", handleAuthChanged)
+
+    return () => {
+      window.clearTimeout(hydrateCartId)
+      window.removeEventListener("storefront-auth-changed", handleAuthChanged)
+    }
+  }, [refreshCart])
 
   const cartCount = React.useMemo(
     () => cartItems.reduce((total, item) => total + item.quantity, 0),
@@ -117,18 +222,51 @@ export function StorefrontCartProvider({
     : 0
   const totalPrice = resolvedUnitPrice * quantity
 
+  const addCartItem = React.useCallback(
+    async (
+      product: StorefrontPurchasableProduct,
+      quantity: number,
+      selectedVariants: Record<string, string> = defaultVariantSelections(product.variants)
+    ) => {
+      if (!(await ensureSignedIn())) return false
+
+      try {
+        const response = await fetch("/api/cart", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            productId: product.id,
+            quantity: clampQuantity(quantity, product.stock),
+            selectedVariants,
+          }),
+        })
+
+        return applyCartResponse(response)
+      } catch {
+        return false
+      }
+    },
+    [applyCartResponse, ensureSignedIn]
+  )
+
   const closeProductSheet = React.useCallback(() => {
     setIsSheetOpen(false)
   }, [])
 
   const openProductSheet = React.useCallback(
-    (product: StorefrontPurchasableProduct) => {
+    async (
+      product: StorefrontPurchasableProduct,
+      selectedVariants?: Record<string, string>
+    ) => {
+      if (!(await ensureSignedIn())) return
+
       setActiveProduct(product)
-      setSheetVariants(defaultVariantSelections(product.variants))
+      setSheetVariants(selectedVariants ?? defaultVariantSelections(product.variants))
+      setAreSheetVariantsLocked(Boolean(selectedVariants))
       setQuantity(1)
       setIsSheetOpen(true)
     },
-    []
+    [ensureSignedIn]
   )
 
   const handleSheetOpenChange = React.useCallback((open: boolean) => {
@@ -136,6 +274,7 @@ export function StorefrontCartProvider({
     if (!open) {
       setActiveProduct(null)
       setSheetVariants({})
+      setAreSheetVariantsLocked(false)
       setQuantity(1)
     }
   }, [])
@@ -151,82 +290,119 @@ export function StorefrontCartProvider({
     [remainingStock]
   )
 
-  const handleAddToCart = React.useCallback(() => {
+  const handleAddToCart = React.useCallback(async () => {
     if (!activeProduct || remainingStock === 0) return
 
     const nextQuantity = clampQuantity(quantity, remainingStock)
 
-    setCartItems((currentItems) => {
-      const existingItem = currentItems.find((item) => item.id === activeProduct.id)
+    setIsAddingFromSheet(true)
 
-      if (!existingItem) {
-        return [
-          ...currentItems,
-          {
-            ...activeProduct,
-            quantity: nextQuantity,
-            selectedVariants: sheetVariants,
-            resolvedUnitPrice,
-          },
-        ]
+    try {
+      if (await addCartItem(activeProduct, nextQuantity, sheetVariants)) {
+        handleSheetOpenChange(false)
       }
-
-      return currentItems.map((item) =>
-        item.id === activeProduct.id
-          ? {
-              ...item,
-              quantity: item.quantity + nextQuantity,
-              selectedVariants: sheetVariants,
-              resolvedUnitPrice,
-            }
-          : item
-      )
-    })
-
-    handleSheetOpenChange(false)
-  }, [activeProduct, handleSheetOpenChange, quantity, remainingStock, sheetVariants, resolvedUnitPrice])
+    } finally {
+      setIsAddingFromSheet(false)
+    }
+  }, [
+    addCartItem,
+    activeProduct,
+    handleSheetOpenChange,
+    quantity,
+    remainingStock,
+    sheetVariants,
+  ])
 
   const updateCartItemQuantity = React.useCallback(
-    (productId: string, quantity: number) => {
+    (cartItemId: string, quantity: number) => {
+      const item = cartItems.find((currentItem) => currentItem.cartItemId === cartItemId)
+      const nextQuantity = item ? clampQuantity(quantity, getCartItemLimit(item)) : quantity
+      const updateVersion = (cartItemUpdateVersions.current.get(cartItemId) ?? 0) + 1
+
+      cartItemUpdateVersions.current.set(cartItemId, updateVersion)
+      setCartItemPending(cartItemId, true)
+
       setCartItems((currentItems) =>
-        currentItems.map((item) =>
-          item.id === productId
-            ? { ...item, quantity: clampQuantity(quantity, getCartItemLimit(item)) }
-            : item
+        currentItems.map((currentItem) =>
+          currentItem.cartItemId === cartItemId
+            ? { ...currentItem, quantity: nextQuantity }
+            : currentItem
         )
       )
+
+      void fetch(`/api/cart/${cartItemId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ quantity: nextQuantity }),
+      })
+        .then((response) => {
+          if (!response.ok && cartItemUpdateVersions.current.get(cartItemId) === updateVersion) {
+            void refreshCart()
+          }
+        })
+        .catch(() => {
+          if (cartItemUpdateVersions.current.get(cartItemId) === updateVersion) {
+            void refreshCart()
+          }
+        })
+        .finally(() => {
+          if (cartItemUpdateVersions.current.get(cartItemId) === updateVersion) {
+            setCartItemPending(cartItemId, false)
+          }
+        })
     },
-    []
+    [cartItems, refreshCart, setCartItemPending]
   )
 
-  const removeCartItem = React.useCallback((productId: string) => {
-    setCartItems((currentItems) =>
-      currentItems.filter((item) => item.id !== productId)
-    )
-  }, [])
+  const removeCartItem = React.useCallback((cartItemId: string) => {
+    setCartItemPending(cartItemId, true)
+    void fetch(`/api/cart/${cartItemId}`, { method: "DELETE" })
+      .then(applyCartResponse)
+      .catch(() => refreshCart())
+      .finally(() => setCartItemPending(cartItemId, false))
+  }, [applyCartResponse, refreshCart, setCartItemPending])
+
+  const pendingCartItemIdList = React.useMemo(
+    () => Array.from(pendingCartItemIds),
+    [pendingCartItemIds]
+  )
 
   const contextValue = React.useMemo<StorefrontCartContextValue>(
     () => ({
+      addCartItem,
       cartCount,
       cartSubtotal,
       cartItems,
       closeProductSheet,
+      isCartLoading,
       openProductSheet,
+      pendingCartItemIds: pendingCartItemIdList,
       removeCartItem,
       updateCartItemQuantity,
     }),
     [
+      addCartItem,
       cartCount,
       cartItems,
       cartSubtotal,
       closeProductSheet,
+      isCartLoading,
       openProductSheet,
+      pendingCartItemIdList,
       removeCartItem,
       updateCartItemQuantity,
     ]
   )
 
-  const activeVariants = activeProduct?.variants ?? []
+  const activeVariants = areSheetVariantsLocked ? [] : (activeProduct?.variants ?? [])
+  const lockedVariantLabels = areSheetVariantsLocked
+    ? (activeProduct?.variants ?? []).flatMap((group) => {
+        const selectedValue = sheetVariants[group.id]
+        const selectedOption = group.options.find((option) => option.value === selectedValue)
+
+        return selectedOption ? [`${group.label}: ${selectedOption.label}`] : []
+      })
+    : []
 
   return (
     <StorefrontCartContext.Provider value={contextValue}>
@@ -266,6 +442,17 @@ export function StorefrontCartProvider({
               <div className="flex flex-1 flex-col gap-5 overflow-y-auto px-6 py-6">
 
                 {/* Variant selectors */}
+                {lockedVariantLabels.length > 0 ? (
+                  <div className="rounded-2xl border border-[#eadbca] bg-white p-4 text-sm text-[#6d5544]">
+                    <p className="mb-2 text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-[#8b6b56]">
+                      Selected options
+                    </p>
+                    <p className="font-medium text-[#2f231b]">
+                      {lockedVariantLabels.join(" · ")}
+                    </p>
+                  </div>
+                ) : null}
+
                 {activeVariants.length > 0 && (
                   <div className="flex flex-col gap-5 rounded-2xl border border-[#eadbca] bg-white p-4">
                     {activeVariants.map((group) => {
@@ -411,10 +598,14 @@ export function StorefrontCartProvider({
                 <Button
                   type="button"
                   onClick={handleAddToCart}
-                  disabled={remainingStock === 0}
+                  disabled={remainingStock === 0 || isAddingFromSheet}
                   className="rounded-full bg-[#ffd3e3] px-5 text-[#1a2330] hover:bg-[#ffc5d8]"
                 >
-                  Add to cart
+                  {isAddingFromSheet ? (
+                    <LoadingIndicator label="Adding..." />
+                  ) : (
+                    "Add to cart"
+                  )}
                 </Button>
               </SheetFooter>
             </>
