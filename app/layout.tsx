@@ -4,6 +4,7 @@ import type { Viewport } from "next"
 
 import "./globals.css"
 import { BackToTopButton } from "@/components/back-to-top-button"
+import { LoadingIndicator } from "@/components/loading-indicator"
 import { SiteFooter } from "@/components/site-footer"
 import { SiteNavbar } from "@/components/site-navbar"
 import { StorefrontCartProvider } from "@/components/storefront-cart-provider"
@@ -46,7 +47,16 @@ export default function RootLayout({
         <ThemeProvider>
           <StorefrontCartProvider>
             <div className="min-h-dvh bg-background">
-              <Suspense fallback={null}>
+              <Suspense
+                fallback={
+                  <div className="border-b border-[oklch(0.86_0.03_40)] bg-[rgba(252,248,242,0.9)] px-4 py-5 sm:px-6 lg:px-16">
+                    <LoadingIndicator
+                      label="Loading navigation..."
+                      className="text-[oklch(0.4_0.04_40)]"
+                    />
+                  </div>
+                }
+              >
                 <SiteNavbar />
               </Suspense>
               {children}

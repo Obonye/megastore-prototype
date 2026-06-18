@@ -4,6 +4,7 @@ import { useEffect, useId, useState, type FormEvent } from "react"
 import Link from "next/link"
 import { Eye, EyeOff, User } from "lucide-react"
 
+import { LoadingIndicator } from "@/components/loading-indicator"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
@@ -205,9 +206,7 @@ export default function ProfilePage() {
 
         {isLoading ? (
           <section className="rounded-[2rem] border border-[#e5ddd4] bg-white p-6 shadow-sm sm:p-8">
-            <p className="text-sm text-[#66717f]" role="status">
-              Loading your profile...
-            </p>
+            <LoadingIndicator label="Loading your profile..." className="text-[#66717f]" />
           </section>
         ) : user ? (
           <div className="flex flex-col gap-6">
@@ -272,7 +271,7 @@ export default function ProfilePage() {
                   disabled={isSubmitting}
                   className="h-12 w-full rounded-full bg-[#ffd3e3] text-sm font-semibold tracking-[0.12em] text-[#1a2330] uppercase hover:bg-[#ffc5d8]"
                 >
-                  {isSubmitting ? "Saving..." : "Save changes"}
+                  {isSubmitting ? <LoadingIndicator label="Saving..." /> : "Save changes"}
                 </Button>
 
                 {error ? (
@@ -333,7 +332,11 @@ export default function ProfilePage() {
                   disabled={isPasswordSubmitting}
                   className="h-12 w-full rounded-full bg-[#d9dcff] text-sm font-semibold tracking-[0.12em] text-[#1a2330] uppercase hover:bg-[#cdd2ff]"
                 >
-                  {isPasswordSubmitting ? "Updating..." : "Update password"}
+                  {isPasswordSubmitting ? (
+                    <LoadingIndicator label="Updating..." />
+                  ) : (
+                    "Update password"
+                  )}
                 </Button>
 
                 {passwordError ? (

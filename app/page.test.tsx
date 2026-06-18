@@ -31,7 +31,7 @@ describe("Home page", () => {
     )
 
     expect(
-      screen.getByRole("heading", { name: "The Art of Baking." })
+      screen.getByRole("heading", { name: "Shop Baking Essentials." })
     ).toBeInTheDocument()
     const categoriesSection = screen.getByRole("region", {
       name: /shop categories/i,
@@ -40,16 +40,12 @@ describe("Home page", () => {
       name: /trending items/i,
     })
 
-    expect(
-      within(categoriesSection).getByRole("heading", {
-        name: "Explore every station in the bakery.",
-      })
-    ).toBeInTheDocument()
+    expect(within(categoriesSection).getByText("Shop by category")).toBeInTheDocument()
     const categoryLinks = within(categoriesSection).getAllByRole("link")
 
-    expect(categoryLinks).toHaveLength(8)
+    expect(categoryLinks).toHaveLength(16)
     expect(
-      within(categoriesSection).getByRole("link", { name: /tools/i })
+      within(categoriesSection).getAllByRole("link", { name: /tools/i })[0]
     ).toHaveAttribute("href", "/products?category=Tools")
     expect(
       within(trendingSection).getByRole("heading", { name: "Trending Items" })
@@ -58,8 +54,8 @@ describe("Home page", () => {
       within(trendingSection).getByRole("link", { name: /view all/i })
     ).toHaveAttribute("href", "/products")
     expect(
-      within(trendingSection).getAllByRole("button", { name: /add to cart/i })
-    ).toHaveLength(8)
+      within(trendingSection).getAllByRole("button", { name: /add .* to cart/i })
+    ).toHaveLength(16)
   })
 
   it("renders a split-card product preview for the first trending item", () => {
@@ -75,16 +71,16 @@ describe("Home page", () => {
     const trendingSectionQueries = within(trendingSection)
 
     expect(
-      trendingSectionQueries.getByAltText("Angled Scraper Set")
+      trendingSectionQueries.getAllByAltText("Angled Scraper Set")[0]
     ).toBeInTheDocument()
     expect(
-      trendingSectionQueries.getByText("Angled Scraper Set")
+      trendingSectionQueries.getAllByText("Angled Scraper Set")[0]
     ).toBeInTheDocument()
     expect(
-      trendingSectionQueries.getByText(
+      trendingSectionQueries.getAllByText(
         "Sharp edges for smoother buttercream finishes."
-      )
+      )[0]
     ).toBeInTheDocument()
-    expect(trendingSectionQueries.getByText("P189")).toBeInTheDocument()
+    expect(trendingSectionQueries.getAllByText("P189")[0]).toBeInTheDocument()
   })
 })

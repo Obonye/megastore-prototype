@@ -2,14 +2,17 @@
 
 import { useState, type FormEvent } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Eye, EyeOff, ShoppingBag } from "lucide-react"
 
+import { LoadingIndicator } from "@/components/loading-indicator"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const nextPath = getSafeNextPath(searchParams.get("next"))
   const [identifier, setIdentifier] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
@@ -38,7 +41,7 @@ export default function LoginPage() {
 
       window.dispatchEvent(new Event("storefront-auth-changed"))
       setMessage("Signed in successfully.")
-      router.push("/")
+      router.push(nextPath)
       router.refresh()
     } catch {
       setError("Unable to sign in. Please try again.")
@@ -59,7 +62,9 @@ export default function LoginPage() {
               Welcome back
             </h1>
             <p className="mt-1 text-sm text-[#66717f]">
-              Sign in with your email or phone number.
+              {nextPath === "/"
+                ? "Sign in with your email or phone number."
+                : "Sign in first, then we’ll send you back to where you were shopping."}
             </p>
           </div>
         </div>
@@ -130,7 +135,7 @@ export default function LoginPage() {
               disabled={isSubmitting}
               className="mt-1 h-12 w-full rounded-full bg-[#ffd3e3] text-sm font-semibold tracking-[0.12em] text-[#1a2330] uppercase hover:bg-[#ffc5d8]"
             >
-              {isSubmitting ? "Signing in..." : "Sign in"}
+              {isSubmitting ? <LoadingIndicator label="Signing in..." /> : "Sign in"}
             </Button>
 
             {error ? (
@@ -156,7 +161,7 @@ export default function LoginPage() {
         <p className="mt-6 text-center text-sm text-[#66717f]">
           Don&apos;t have an account?{" "}
           <Link
-            href="/signup"
+            href={nextPath === "/" ? "/signup" : `/signup?next=${encodeURIComponent(nextPath)}`}
             className="font-semibold text-[#8e0048] transition-colors hover:text-[#6f0038]"
           >
             Sign up
@@ -165,4 +170,9 @@ export default function LoginPage() {
       </div>
     </main>
   )
+}
+
+function getSafeNextPath(next: string | null) {
+  if (!next || !next.startsWith("/") || next.startsWith("//")) return "/"
+  return next
 }

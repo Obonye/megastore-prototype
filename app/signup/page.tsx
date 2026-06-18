@@ -2,14 +2,17 @@
 
 import { useState, type FormEvent } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Eye, EyeOff, ShoppingBag } from "lucide-react"
 
+import { LoadingIndicator } from "@/components/loading-indicator"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
 export default function SignupPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const nextPath = getSafeNextPath(searchParams.get("next"))
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [error, setError] = useState("")
@@ -53,7 +56,7 @@ export default function SignupPage() {
 
       window.dispatchEvent(new Event("storefront-auth-changed"))
       setMessage("Account created. You're signed in.")
-      router.push("/")
+      router.push(nextPath)
       router.refresh()
     } catch {
       setError("Unable to create account. Please try again.")
@@ -226,7 +229,11 @@ export default function SignupPage() {
               disabled={isSubmitting}
               className="h-12 w-full rounded-full bg-[#ffd3e3] text-sm font-semibold tracking-[0.12em] text-[#1a2330] uppercase hover:bg-[#ffc5d8]"
             >
-              {isSubmitting ? "Creating account..." : "Create account"}
+              {isSubmitting ? (
+                <LoadingIndicator label="Creating account..." />
+              ) : (
+                "Create account"
+              )}
             </Button>
 
             {message ? (
@@ -243,7 +250,7 @@ export default function SignupPage() {
         <p className="mt-6 text-center text-sm text-[#66717f]">
           Already have an account?{" "}
           <Link
-            href="/login"
+            href={nextPath === "/" ? "/login" : `/login?next=${encodeURIComponent(nextPath)}`}
             className="font-semibold text-[#8e0048] transition-colors hover:text-[#6f0038]"
           >
             Sign in
@@ -252,4 +259,9 @@ export default function SignupPage() {
       </div>
     </main>
   )
+}
+
+function getSafeNextPath(next: string | null) {
+  if (!next || !next.startsWith("/") || next.startsWith("//")) return "/"
+  return next
 }

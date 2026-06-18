@@ -31,11 +31,6 @@ describe("Products page", () => {
     )
 
     expect(
-      screen.getByRole("heading", {
-        name: /search, sort, and refine the live catalogue/i,
-      })
-    ).toBeInTheDocument()
-    expect(
       screen.getByRole("searchbox", { name: /search products/i })
     ).toBeInTheDocument()
     expect(screen.getByRole("combobox", { name: /category/i })).toHaveValue("")
@@ -43,8 +38,8 @@ describe("Products page", () => {
       "featured"
     )
     expect(
-      screen.getAllByRole("button", { name: /add to cart/i })
-    ).toHaveLength(9)
+      screen.getAllByRole("button", { name: /add .* to cart/i })
+    ).toHaveLength(6)
     expect(screen.getByRole("link", { name: "1" })).toHaveAttribute(
       "aria-current",
       "page"
@@ -73,7 +68,7 @@ describe("Products page", () => {
     )
     expect(screen.getByAltText("Golden Confetti Mix")).toBeInTheDocument()
     expect(
-      screen.getAllByRole("button", { name: /add to cart/i }).length
+      screen.getAllByRole("button", { name: /add .* to cart/i }).length
     ).toBeGreaterThanOrEqual(1)
     expect(screen.queryByText("Ombre Sprinkle Tin")).not.toBeInTheDocument()
     expect(screen.queryByText("Angled Scraper Set")).not.toBeInTheDocument()

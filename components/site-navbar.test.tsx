@@ -76,7 +76,19 @@ describe("SiteNavbar", () => {
     ).toBeGreaterThan(0)
   })
 
-  it("shows login instead of the compact mobile cart when signed out", () => {
+  it("shows a session loading indicator while auth is resolving", () => {
+    fetchMock.mockReturnValue(new Promise(() => {}))
+
+    render(
+      <StorefrontCartProvider>
+        <SiteNavbar />
+      </StorefrontCartProvider>
+    )
+
+    expect(screen.getAllByText(/checking session|loading/i).length).toBeGreaterThan(0)
+  })
+
+  it("shows login instead of the compact mobile cart when signed out", async () => {
     render(
       <StorefrontCartProvider>
         <SiteNavbar />
@@ -84,11 +96,11 @@ describe("SiteNavbar", () => {
     )
 
     expect(
+      (await screen.findAllByRole("link", { name: "Login" })).length
+    ).toBeGreaterThan(1)
+    expect(
       screen.queryByRole("link", { name: /open basket/i })
     ).not.toBeInTheDocument()
-    expect(
-      screen.getAllByRole("link", { name: "Login" }).length
-    ).toBeGreaterThan(1)
   })
 
   it("shows a signed-in greeting with a signout action", async () => {

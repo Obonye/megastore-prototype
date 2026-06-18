@@ -14,6 +14,7 @@ import {
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { LoadingIndicator } from "@/components/loading-indicator"
 import { useStorefrontCart } from "@/components/storefront-cart-provider"
 import {
   DropdownMenu,
@@ -56,6 +57,7 @@ export function SiteNavbar() {
   const searchParams = useSearchParams()
   const currentQuery = searchParams?.get("q") ?? ""
   const [customerName, setCustomerName] = useState<string | null>(null)
+  const [isAuthLoading, setIsAuthLoading] = useState(true)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
 
@@ -82,11 +84,17 @@ export function SiteNavbar() {
   }
 
   useEffect(() => {
-    function handleAuthChanged() {
-      void readCurrentUser().then(setCustomerName)
+    async function loadCurrentUser() {
+      setIsAuthLoading(true)
+      setCustomerName(await readCurrentUser())
+      setIsAuthLoading(false)
     }
 
-    void readCurrentUser().then(setCustomerName)
+    function handleAuthChanged() {
+      void loadCurrentUser()
+    }
+
+    void loadCurrentUser()
 
     window.addEventListener("storefront-auth-changed", handleAuthChanged)
 
@@ -226,7 +234,17 @@ export function SiteNavbar() {
               </Link>
             </Button>
 
-            {customerName ? (
+            {isAuthLoading ? (
+              <Button
+                type="button"
+                disabled
+                variant="ghost"
+                aria-label="Loading session"
+                className="h-12 rounded-full px-5 text-base font-semibold tracking-[0.16em] text-[oklch(0.45_0.03_40)] uppercase"
+              >
+                <LoadingIndicator label="Checking session..." />
+              </Button>
+            ) : customerName ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -268,7 +286,17 @@ export function SiteNavbar() {
 
           {/* Mobile controls */}
           <div className="flex items-center gap-2 lg:hidden">
-            {customerName ? (
+            {isAuthLoading ? (
+              <Button
+                type="button"
+                disabled
+                variant="ghost"
+                aria-label="Loading session"
+                className="h-10 rounded-full border border-[oklch(0.86_0.03_40)] px-3 text-xs font-semibold tracking-[0.14em] text-[oklch(0.45_0.03_40)] uppercase"
+              >
+                <LoadingIndicator label="Loading" />
+              </Button>
+            ) : customerName ? (
               <Button
                 asChild
                 variant="ghost"
@@ -391,7 +419,11 @@ export function SiteNavbar() {
                   </nav>
 
                   <div className="mt-auto flex flex-col gap-3 pt-6">
-                    {customerName ? (
+                    {isAuthLoading ? (
+                      <div className="rounded-3xl border border-[oklch(0.86_0.03_40)] bg-white p-4 text-sm font-semibold text-[oklch(0.45_0.03_40)]">
+                        <LoadingIndicator label="Checking session..." />
+                      </div>
+                    ) : customerName ? (
                       <div className="rounded-3xl border border-[oklch(0.86_0.03_40)] bg-white p-3">
                         <p className="px-2 pb-2 text-base font-semibold text-[oklch(0.23_0.03_30)]">
                           Hi, {customerName}
@@ -431,7 +463,7 @@ export function SiteNavbar() {
                         </Link>
                       </Button>
                     )}
-                    {customerName ? (
+                    {!isAuthLoading && customerName ? (
                       <Button
                         asChild
                         variant="ghost"

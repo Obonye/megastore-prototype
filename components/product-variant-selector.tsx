@@ -3,10 +3,13 @@
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { ShoppingCart } from "lucide-react"
 
-import { StorefrontAddToCartTrigger } from "@/components/storefront-add-to-cart-trigger"
+import { LoadingIndicator } from "@/components/loading-indicator"
+import { useStorefrontCart } from "@/components/storefront-cart-provider"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import type { StorefrontProduct } from "@/lib/mock-storefront"
 
 type Props = {
@@ -14,12 +17,17 @@ type Props = {
 }
 
 export function ProductVariantSelector({ product }: Props) {
+  const router = useRouter()
+  const { addCartItem } = useStorefrontCart()
   const variants = product.variants ?? []
 
   const initialSelected = Object.fromEntries(
     variants.map((v) => [v.id, v.defaultValue])
   )
   const [selected, setSelected] = useState<Record<string, string>>(initialSelected)
+  const [quantity, setQuantity] = useState(1)
+  const [isAdding, setIsAdding] = useState(false)
+  const [message, setMessage] = useState("")
 
   // Derive active image and price from selections
   let activeImage = product.imageSrc
@@ -34,6 +42,35 @@ export function ProductVariantSelector({ product }: Props) {
   }
 
   const displayPrice = `P${product.unitPrice + priceModifier}`
+  const lineTotal = product.unitPrice + priceModifier
+
+  function handleQuantityChange(value: number) {
+    if (Number.isNaN(value) || value < 1) {
+      setQuantity(1)
+      return
+    }
+
+    setQuantity(Math.min(value, product.stock))
+  }
+
+  async function handleAddToCart() {
+    setMessage("")
+    setIsAdding(true)
+
+    try {
+      const added = await addCartItem(product, quantity, selected)
+
+      if (added) {
+        setMessage("Added to cart.")
+        router.push("/cart")
+        router.refresh()
+      } else {
+        setMessage("Unable to add this item to your cart. Please try again.")
+      }
+    } finally {
+      setIsAdding(false)
+    }
+  }
 
   return (
     <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(22rem,0.95fr)] lg:items-start">
@@ -174,24 +211,57 @@ export function ProductVariantSelector({ product }: Props) {
 
         {/* Price + actions */}
         <div className="mt-8 flex flex-col gap-5 border-t border-[#e5ddd4] pt-6 sm:flex-row sm:items-end sm:justify-between">
-          <div>
+          <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_9rem] sm:items-end">
             <p className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-[#8b6b56]">
               Price
             </p>
             <p className="mt-2 font-heading text-4xl font-semibold tracking-[-0.05em] text-[#1a2330]">
               {displayPrice}
             </p>
+            <label className="flex flex-col gap-2 sm:row-span-2">
+              <span className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-[#8b6b56]">
+                Quantity
+              </span>
+              <Input
+                aria-label={`Quantity for ${product.name}`}
+                type="number"
+                min={1}
+                max={product.stock}
+                value={quantity}
+                onChange={(event) => handleQuantityChange(Number(event.target.value))}
+                className="h-12 rounded-2xl border-[#d7c8b8] bg-[#fffaf6] text-[#1a2330]"
+              />
+            </label>
+            <p className="text-sm text-[#6d5544] sm:col-span-2">
+              Total: <span className="font-semibold text-[#1a2330]">P{(lineTotal * quantity).toFixed(2)}</span>
+            </p>
           </div>
 
           <div className="flex flex-col gap-3 sm:items-end">
-            <StorefrontAddToCartTrigger
-              ariaLabel={`Add ${product.name} to cart`}
-              product={product}
+            <Button
+              type="button"
+              aria-label={`Add ${product.name} to cart`}
+              disabled={isAdding}
+              onClick={() => void handleAddToCart()}
               className="h-12 rounded-full bg-[#ffd3e3] px-5 text-[#1a2330] hover:bg-[#ffc5d8]"
             >
-              <ShoppingCart className="size-5" />
-              Add to cart
-            </StorefrontAddToCartTrigger>
+              {isAdding ? (
+                <LoadingIndicator label="Adding..." />
+              ) : (
+                <>
+                  <ShoppingCart className="size-5" />
+                  Add to cart
+                </>
+              )}
+            </Button>
+            {message ? (
+              <p
+                className={`text-sm font-medium ${message.startsWith("Unable") ? "text-[#8e0048]" : "text-[#146b5d]"}`}
+                role="status"
+              >
+                {message}
+              </p>
+            ) : null}
             <Button
               asChild
               variant="outline"

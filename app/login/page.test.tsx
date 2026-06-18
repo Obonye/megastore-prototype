@@ -13,6 +13,7 @@ vi.mock("next/navigation", () => ({
     push: pushMock,
     refresh: refreshMock,
   }),
+  useSearchParams: () => new URLSearchParams(),
 }))
 
 describe("Login page", () => {
