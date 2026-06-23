@@ -31,25 +31,29 @@ const trendingHoverClasses = [
 const shopByNeedCards = [
   {
     title: "Start Baking",
-    description: "Core tools, measuring sets, tins, and pantry staples for first bakes.",
+    description:
+      "Core tools, measuring sets, tins, and pantry staples for first bakes.",
     href: "/products?category=Baking+Basics",
     accentClassName: "bg-[#ff6b9a]",
   },
   {
     title: "Decorate Cakes",
-    description: "Fondants, colour, nozzles, and finishing details for polished results.",
+    description:
+      "Fondants, colour, nozzles, and finishing details for polished results.",
     href: "/products?category=Decorations",
     accentClassName: "bg-[#32c7b0]",
   },
   {
     title: "Package Orders",
-    description: "Boards, ribbon, boxes, and wrap-up essentials for clean handoff.",
+    description:
+      "Boards, ribbon, boxes, and wrap-up essentials for clean handoff.",
     href: "/products?category=Packaging",
     accentClassName: "bg-[#ff9f43]",
   },
   {
     title: "Restock the Studio",
-    description: "Fast-moving everyday essentials for busy decorators and bakers.",
+    description:
+      "Fast-moving everyday essentials for busy decorators and bakers.",
     href: "/products",
     accentClassName: "bg-[#7c8cff]",
   },
@@ -158,14 +162,30 @@ function getCategoryLiftClasses(index: number) {
   const isBottomRowLarge = index >= 4
 
   return [
-    isLeftColumnSmall ? "sm:max-lg:hover:-translate-x-2 sm:max-lg:focus-visible:-translate-x-2" : "",
-    isRightColumnSmall ? "sm:max-lg:hover:translate-x-2 sm:max-lg:focus-visible:translate-x-2" : "",
-    isTopRowSmall ? "sm:max-lg:hover:-translate-y-2 sm:max-lg:focus-visible:-translate-y-2" : "",
-    isBottomRowSmall ? "sm:max-lg:hover:translate-y-2 sm:max-lg:focus-visible:translate-y-2" : "",
-    isLeftColumnLarge ? "lg:hover:-translate-x-2 lg:focus-visible:-translate-x-2" : "",
-    isRightColumnLarge ? "lg:hover:translate-x-2 lg:focus-visible:translate-x-2" : "",
-    isTopRowLarge ? "lg:hover:-translate-y-2 lg:focus-visible:-translate-y-2" : "",
-    isBottomRowLarge ? "lg:hover:translate-y-2 lg:focus-visible:translate-y-2" : "",
+    isLeftColumnSmall
+      ? "sm:max-lg:hover:-translate-x-2 sm:max-lg:focus-visible:-translate-x-2"
+      : "",
+    isRightColumnSmall
+      ? "sm:max-lg:hover:translate-x-2 sm:max-lg:focus-visible:translate-x-2"
+      : "",
+    isTopRowSmall
+      ? "sm:max-lg:hover:-translate-y-2 sm:max-lg:focus-visible:-translate-y-2"
+      : "",
+    isBottomRowSmall
+      ? "sm:max-lg:hover:translate-y-2 sm:max-lg:focus-visible:translate-y-2"
+      : "",
+    isLeftColumnLarge
+      ? "lg:hover:-translate-x-2 lg:focus-visible:-translate-x-2"
+      : "",
+    isRightColumnLarge
+      ? "lg:hover:translate-x-2 lg:focus-visible:translate-x-2"
+      : "",
+    isTopRowLarge
+      ? "lg:hover:-translate-y-2 lg:focus-visible:-translate-y-2"
+      : "",
+    isBottomRowLarge
+      ? "lg:hover:translate-y-2 lg:focus-visible:translate-y-2"
+      : "",
   ]
     .filter(Boolean)
     .join(" ")
@@ -201,7 +221,7 @@ export default function Page() {
           </div>
 
           <div className="mt-10 sm:hidden">
-            <div className="-mx-6 overflow-x-auto px-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className="-mx-6 [scrollbar-width:none] overflow-x-auto px-6 [&::-webkit-scrollbar]:hidden">
               <div className="flex gap-4 pb-1">
                 {trendingStorefrontItems.map((item, index) => (
                   <article
@@ -215,19 +235,19 @@ export default function Page() {
                         fill
                         className="object-cover"
                       />
-                      <div className="absolute left-4 top-4 rounded-full bg-white/88 px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-[#8e0048] backdrop-blur-sm">
+                      <div className="absolute top-4 left-4 rounded-full bg-white/88 px-3 py-1 text-[0.7rem] font-semibold tracking-[0.18em] text-[#8e0048] uppercase backdrop-blur-sm">
                         {formatItemNumber(index)}
                       </div>
                     </div>
 
-                    <div className="relative z-20 bg-transparent px-5 pb-4 pt-4 text-[#1a2330]">
-                      <h3 className="font-heading text-[1.2rem] font-semibold leading-none tracking-tight text-[#1a2330]">
+                    <div className="relative z-20 bg-transparent px-5 pt-4 pb-4 text-[#1a2330]">
+                      <h3 className="font-heading text-[1.2rem] leading-none font-semibold tracking-tight text-[#1a2330]">
                         {item.name}
                       </h3>
                       <p className="mt-3 min-h-12 text-sm leading-6 text-[#5b6674]">
                         {item.description}
                       </p>
-                      <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-[#7a6f7c]">
+                      <p className="text-[0.68rem] font-semibold tracking-[0.16em] text-[#7a6f7c] uppercase">
                         {productFinishById.get(item.id) ?? "Store favorite"} ·{" "}
                         <span className="text-[#8e0048]">
                           {item.stock <= 5
@@ -264,7 +284,7 @@ export default function Page() {
                 ))}
               </div>
             </div>
-            <div className="mt-4 flex items-center justify-between text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-[#8e0048]">
+            <div className="mt-4 flex items-center justify-between text-[0.72rem] font-semibold tracking-[0.18em] text-[#8e0048] uppercase">
               <span>Swipe through picks</span>
               <span>
                 {formatItemNumber(trendingStorefrontItems.length - 1)} items
@@ -288,14 +308,14 @@ export default function Page() {
                     />
                   </div>
 
-                  <div className="relative z-20 bg-transparent px-5 pb-4 pt-4 text-[#1a2330]">
-                    <h3 className="font-heading text-[1.25rem] font-semibold leading-none tracking-tight text-[#1a2330]">
+                  <div className="relative z-20 bg-transparent px-5 pt-4 pb-4 text-[#1a2330]">
+                    <h3 className="font-heading text-[1.25rem] leading-none font-semibold tracking-tight text-[#1a2330]">
                       {item.name}
                     </h3>
                     <p className="mt-3 min-h-12 text-sm leading-6 text-[#5b6674]">
                       {item.description}
                     </p>
-                    <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-[#7a6f7c]">
+                    <p className="text-[0.68rem] font-semibold tracking-[0.16em] text-[#7a6f7c] uppercase">
                       {productFinishById.get(item.id) ?? "Store favorite"} ·{" "}
                       <span className="text-[#8e0048]">
                         {item.stock <= 5
@@ -342,12 +362,12 @@ export default function Page() {
       >
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 opacity-70 [background-image:radial-gradient(circle_at_10px_10px,rgba(255,107,154,0.55)_0,rgba(255,107,154,0.55)_2px,transparent_2.4px),radial-gradient(circle_at_32px_20px,rgba(50,199,176,0.5)_0,rgba(50,199,176,0.5)_2px,transparent_2.4px),radial-gradient(circle_at_22px_34px,rgba(255,159,67,0.45)_0,rgba(255,159,67,0.45)_2px,transparent_2.4px),radial-gradient(circle_at_44px_42px,rgba(124,140,255,0.42)_0,rgba(124,140,255,0.42)_2px,transparent_2.4px)] [background-size:56px_56px]"
+          className="pointer-events-none absolute inset-0 [background-image:radial-gradient(circle_at_10px_10px,rgba(255,107,154,0.55)_0,rgba(255,107,154,0.55)_2px,transparent_2.4px),radial-gradient(circle_at_32px_20px,rgba(50,199,176,0.5)_0,rgba(50,199,176,0.5)_2px,transparent_2.4px),radial-gradient(circle_at_22px_34px,rgba(255,159,67,0.45)_0,rgba(255,159,67,0.45)_2px,transparent_2.4px),radial-gradient(circle_at_44px_42px,rgba(124,140,255,0.42)_0,rgba(124,140,255,0.42)_2px,transparent_2.4px)] [background-size:56px_56px] opacity-70"
         />
         <div className="relative mx-auto max-w-[96rem] px-4 sm:px-6 lg:px-10">
           <div className="mx-auto max-w-3xl text-center">
-            <p className="text-base font-semibold uppercase tracking-[0.28em] text-[#8e0048]">
-              Shop by category
+            <p className="text-2xl font-semibold text-[#8e0048]">
+              Shop By Category
             </p>
             <p className="mx-auto mt-4 max-w-2xl text-base leading-8 text-[#5b6674]">
               Browse tools, fondants, boards, packaging, and finishing details
@@ -355,7 +375,7 @@ export default function Page() {
             </p>
           </div>
 
-          <div className="mt-14 flex flex-col gap-3 sm:hidden">
+          <div className="mt-14 grid grid-cols-2 gap-3 sm:hidden md:flex md:flex-col">
             {storefrontCategoryChips.map((chip, index) => (
               <div key={chip.href} className="group relative isolate min-h-32">
                 <span
@@ -368,14 +388,16 @@ export default function Page() {
                   href={chip.href}
                   className="relative z-10 flex min-h-32 items-end rounded-[1.6rem] bg-[#f3f2ee] px-5 py-4 text-left text-[#1a2330] transition-[transform,background-color] duration-300 ease-out active:translate-x-0.5 active:translate-y-0.5 active:bg-white"
                 >
-                  <div className="relative z-10 flex w-full items-end justify-between gap-4">
-                    <h3 className="font-heading text-[clamp(2.4rem,10vw,3.4rem)] font-semibold leading-[0.9] tracking-[-0.06em]">
+                  <div className="relative z-10 flex w-1/2 items-end justify-between gap-4 md:w-full">
+                    <h3 className="font-heading text-[clamp(1rem,1.1rem,1.2rem)] leading-[0.9] font-semibold tracking-[-0.06em] lg:text-[clamp(2.4rem,10vw,3.4rem)]">
                       {chip.label}
                     </h3>
                     <span
                       aria-hidden="true"
                       className={`pointer-events-none flex size-11 shrink-0 items-center justify-center rounded-full text-[#1a2330] ${
-                        categoryShadowClasses[index % categoryShadowClasses.length]
+                        categoryShadowClasses[
+                          index % categoryShadowClasses.length
+                        ]
                       }`}
                     >
                       <ArrowUpRight className="size-5" />
@@ -402,18 +424,22 @@ export default function Page() {
                       <div className="group absolute inset-0 isolate overflow-visible">
                         <span
                           aria-hidden="true"
-                          className={`absolute inset-[1px] opacity-0 transition-opacity delay-100 duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-none group-hover:opacity-100 group-focus-within:opacity-100 group-active:opacity-100 group-active:delay-0 ${cornerClasses} ${
-                            categoryShadowClasses[index % categoryShadowClasses.length]
+                          className={`absolute inset-[1px] opacity-0 transition-opacity delay-100 duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-focus-within:opacity-100 group-hover:opacity-100 group-active:opacity-100 group-active:delay-0 motion-reduce:transition-none ${cornerClasses} ${
+                            categoryShadowClasses[
+                              index % categoryShadowClasses.length
+                            ]
                           }`}
                         />
                         <Link
                           href={chip.href}
-                          className={`relative z-10 flex min-h-56 flex-col justify-end bg-[#f3f2ee] px-7 py-7 text-left text-[#1a2330] shadow-[0_0_0_rgba(0,0,0,0)] transition-[transform,background-color,box-shadow,border-radius] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-none hover:rounded-[1.6rem] hover:bg-white hover:shadow-[0_18px_38px_rgba(38,43,51,0.10)] focus-visible:rounded-[1.6rem] focus-visible:bg-white focus-visible:shadow-[0_18px_38px_rgba(38,43,51,0.10)] focus-visible:outline-none active:translate-x-0.5 active:translate-y-0.5 active:rounded-[1.6rem] ${cornerClasses} ${liftClasses}`}
+                          className={`relative z-10 flex min-h-56 flex-col justify-end bg-[#f3f2ee] px-7 py-7 text-left text-[#1a2330] shadow-[0_0_0_rgba(0,0,0,0)] transition-[transform,background-color,box-shadow,border-radius] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:rounded-[1.6rem] hover:bg-white hover:shadow-[0_18px_38px_rgba(38,43,51,0.10)] focus-visible:rounded-[1.6rem] focus-visible:bg-white focus-visible:shadow-[0_18px_38px_rgba(38,43,51,0.10)] focus-visible:outline-none active:translate-x-0.5 active:translate-y-0.5 active:rounded-[1.6rem] motion-reduce:transition-none ${cornerClasses} ${liftClasses}`}
                         >
                           <span
                             aria-hidden="true"
-                            className={`pointer-events-none absolute right-5 top-5 flex size-11 translate-x-0 translate-y-0 items-center justify-center rounded-full text-[#1a2330] opacity-100 transition-[transform,opacity] delay-100 duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-none lg:translate-x-1 lg:-translate-y-1 lg:opacity-0 lg:group-hover:translate-x-0 lg:group-hover:translate-y-0 lg:group-hover:opacity-100 lg:group-focus-within:translate-x-0 lg:group-focus-within:translate-y-0 lg:group-focus-within:opacity-100 lg:group-active:translate-x-0 lg:group-active:translate-y-0 lg:group-active:opacity-100 lg:group-active:delay-0 ${
-                              categoryShadowClasses[index % categoryShadowClasses.length]
+                            className={`pointer-events-none absolute top-5 right-5 flex size-11 translate-x-0 translate-y-0 items-center justify-center rounded-full text-[#1a2330] opacity-100 transition-[transform,opacity] delay-100 duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-none lg:translate-x-1 lg:-translate-y-1 lg:opacity-0 lg:group-focus-within:translate-x-0 lg:group-focus-within:translate-y-0 lg:group-focus-within:opacity-100 lg:group-hover:translate-x-0 lg:group-hover:translate-y-0 lg:group-hover:opacity-100 lg:group-active:translate-x-0 lg:group-active:translate-y-0 lg:group-active:opacity-100 lg:group-active:delay-0 ${
+                              categoryShadowClasses[
+                                index % categoryShadowClasses.length
+                              ]
                             }`}
                           >
                             <ArrowUpRight className="size-5" />
@@ -422,7 +448,7 @@ export default function Page() {
                             <h3 className="font-heading text-2xl font-semibold tracking-[-0.04em]">
                               {chip.label}
                             </h3>
-                            <p className="mt-2 text-sm uppercase tracking-[0.18em] text-[#6c7684]">
+                            <p className="mt-2 text-sm text-[#6c7684] uppercase">
                               View Collection
                             </p>
                           </div>
@@ -442,7 +468,7 @@ export default function Page() {
           <div className="overflow-hidden rounded-[2.4rem] bg-[#32c7b0]">
             <div className="grid items-stretch gap-0 md:grid-cols-2">
               <div className="flex flex-col justify-center px-8 py-12 sm:px-12 lg:px-16">
-                <p className="w-fit rounded-full bg-white/18 px-4 py-2 text-sm font-semibold uppercase tracking-[0.24em] text-[#fff4df]">
+                <p className="w-fit rounded-full bg-white/18 px-4 py-2 text-sm font-semibold tracking-[0.24em] text-[#fff4df] uppercase">
                   Limited time offer
                 </p>
                 <h2 className="mt-6 max-w-[10ch] font-heading text-[clamp(2.7rem,5vw,4.8rem)] font-semibold tracking-[-0.06em] text-[#fff4df]">
@@ -455,12 +481,12 @@ export default function Page() {
                 <div className="mt-10 flex flex-wrap items-center gap-6">
                   <Button
                     asChild
-                    className="h-12 rounded-full bg-white px-7 text-sm font-semibold uppercase tracking-[0.16em] text-[#16645a] hover:bg-[#f3fffd]"
+                    className="h-12 rounded-full bg-white px-7 text-sm font-semibold tracking-[0.16em] text-[#16645a] uppercase hover:bg-[#f3fffd]"
                   >
                     <Link href="/products?sort=price-desc">Shop now</Link>
                   </Button>
                   <div className="flex flex-col">
-                    <span className="text-sm uppercase tracking-[0.18em] text-[#fff4df]/70 line-through">
+                    <span className="text-sm tracking-[0.18em] text-[#fff4df]/70 uppercase line-through">
                       P4,500
                     </span>
                     <span className="font-heading text-3xl font-semibold tracking-[-0.04em] text-[#fff4df]">
@@ -491,7 +517,7 @@ export default function Page() {
       >
         <div className="mx-auto max-w-[96rem]">
           <div className="mx-auto max-w-3xl text-center">
-            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#8e0048]">
+            <p className="text-sm font-semibold tracking-[0.28em] text-[#8e0048] uppercase">
               Shop by need
             </p>
             <h2
@@ -511,7 +537,7 @@ export default function Page() {
               <div key={card.title} className="relative pt-3">
                 <div
                   aria-hidden="true"
-                  className={`absolute inset-x-0 bottom-0 top-3 rounded-[1.75rem] ${card.accentClassName}`}
+                  className={`absolute inset-x-0 top-3 bottom-0 rounded-[1.75rem] ${card.accentClassName}`}
                 />
                 <Link
                   href={card.href}
@@ -519,8 +545,10 @@ export default function Page() {
                 >
                   <div>
                     <p
-                      className={`text-sm font-semibold uppercase tracking-[0.22em] ${
-                        shopByNeedNumberClasses[index % shopByNeedNumberClasses.length]
+                      className={`text-sm font-semibold tracking-[0.22em] uppercase ${
+                        shopByNeedNumberClasses[
+                          index % shopByNeedNumberClasses.length
+                        ]
                       }`}
                     >
                       {formatItemNumber(index)}
@@ -547,7 +575,7 @@ export default function Page() {
       >
         <div className="mx-auto grid max-w-[96rem] gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
           <div className="max-w-2xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#8e0048]">
+            <p className="text-sm font-semibold tracking-[0.28em] text-[#8e0048] uppercase">
               Why shop with us
             </p>
             <h2
@@ -557,9 +585,9 @@ export default function Page() {
               A baking supply store built for real prep, not endless browsing.
             </h2>
             <p className="mt-4 max-w-xl text-base leading-8 text-[#5b6674]">
-              From quick studio restocks to event-week pickup prep, these are the
-              things that make the shop more useful when you already know the
-              kind of baking day ahead of you.
+              From quick studio restocks to event-week pickup prep, these are
+              the things that make the shop more useful when you already know
+              the kind of baking day ahead of you.
             </p>
           </div>
 
@@ -577,7 +605,7 @@ export default function Page() {
         <div className="mx-auto max-w-[96rem]">
           <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
             <div className="max-w-2xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#8e0048]">
+              <p className="text-sm font-semibold tracking-[0.28em] text-[#8e0048] uppercase">
                 Best sellers
               </p>
               <h2
@@ -617,17 +645,17 @@ export default function Page() {
                   />
                 </div>
 
-                <div className="relative z-20 bg-transparent px-5 pb-5 pt-4 text-[#1a2330]">
+                <div className="relative z-20 bg-transparent px-5 pt-4 pb-5 text-[#1a2330]">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-[#8e0048]">
+                      <p className="text-[0.68rem] font-semibold tracking-[0.18em] text-[#8e0048] uppercase">
                         {product.category}
                       </p>
-                      <h3 className="mt-2 font-heading text-[1.4rem] font-semibold leading-none tracking-[-0.04em] text-[#1a2330]">
+                      <h3 className="mt-2 font-heading text-[1.4rem] leading-none font-semibold tracking-[-0.04em] text-[#1a2330]">
                         {product.name}
                       </h3>
                     </div>
-                    <span className="rounded-full bg-[#f3ebe5] px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-[#6d5544]">
+                    <span className="rounded-full bg-[#f3ebe5] px-3 py-1 text-[0.68rem] font-semibold tracking-[0.16em] text-[#6d5544] uppercase">
                       {product.badge}
                     </span>
                   </div>
@@ -635,7 +663,7 @@ export default function Page() {
                   <p className="mt-4 min-h-14 text-sm leading-7 text-[#66717f]">
                     {product.description}
                   </p>
-                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-[#7a6f7c]">
+                  <p className="text-[0.68rem] font-semibold tracking-[0.16em] text-[#7a6f7c] uppercase">
                     {product.finish} ·{" "}
                     <span className="text-[#8e0048]">
                       {product.stock <= 5
@@ -674,7 +702,6 @@ export default function Page() {
           </div>
         </div>
       </section>
-
     </main>
   )
 }
