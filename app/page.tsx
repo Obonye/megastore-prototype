@@ -375,7 +375,7 @@ export default function Page() {
             </p>
           </div>
 
-          <div className="mt-14 grid grid-cols-2 gap-3 sm:hidden md:flex md:flex-col">
+          <div className="mt-14 grid grid-cols-2 gap-3 sm:hidden">
             {storefrontCategoryChips.map((chip, index) => (
               <div key={chip.href} className="group relative isolate min-h-32">
                 <span
@@ -386,7 +386,7 @@ export default function Page() {
                 />
                 <Link
                   href={chip.href}
-                  className="relative z-10 flex min-h-32 items-end rounded-[1.6rem] bg-[#f3f2ee] px-5 py-4 text-left text-[#1a2330] transition-[transform,background-color] duration-300 ease-out active:translate-x-0.5 active:translate-y-0.5 active:bg-white"
+                  className="relative z-10 flex min-h-32 flex-wrap items-end rounded-[1.6rem] bg-[#f3f2ee] px-5 py-4 text-left text-[#1a2330] transition-[transform,background-color] duration-300 ease-out active:translate-x-0.5 active:translate-y-0.5 active:bg-white"
                 >
                   <div className="relative z-10 flex w-1/2 items-end justify-between gap-4 md:w-full">
                     <h3 className="font-heading text-[clamp(1rem,1.1rem,1.2rem)] leading-[0.9] font-semibold tracking-[-0.06em] lg:text-[clamp(2.4rem,10vw,3.4rem)]">
