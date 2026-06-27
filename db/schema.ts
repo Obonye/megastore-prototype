@@ -139,3 +139,57 @@ export const savedPaymentMethods = pgTable("saved_payment_methods", {
     .defaultNow()
     .notNull(),
 })
+
+// --- Product catalogue ---
+
+export type VariantOption = {
+  value: string
+  label: string
+  color?: string
+  imageSrc?: string
+  priceModifier?: number
+}
+
+export type VariantGroup = {
+  id: string
+  label: string
+  type: "colour" | "size" | "quantity"
+  options: VariantOption[]
+  defaultValue: string
+}
+
+export const categories = pgTable("categories", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: text("name").notNull(),
+  slug: text("slug").notNull().unique(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+})
+
+export const products = pgTable("products", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  slug: text("slug").notNull().unique(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  categoryId: uuid("category_id").references(() => categories.id, {
+    onDelete: "set null",
+  }),
+  unitPrice: integer("unit_price").notNull(),
+  stock: integer("stock").notNull().default(0),
+  badge: text("badge"),
+  finish: text("finish"),
+  imageSrc: text("image_src").notNull(),
+  searchTerms: text("search_terms").array().notNull().default([]),
+  variants: jsonb("variants").$type<VariantGroup[]>().notNull().default([]),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+})

@@ -6,13 +6,7 @@ import { ShoppingCart } from "lucide-react"
 import { StorefrontAddToCartTrigger } from "@/components/storefront-add-to-cart-trigger"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import {
-  storefrontCategoryChips,
-  storefrontProducts,
-  type StorefrontProduct,
-} from "@/lib/mock-storefront"
-
-const PRODUCTS_PER_PAGE = 6
+import { getCategories, getProducts } from "@/lib/storefront-products"
 
 const productCardHoverClasses = [
   "hover:bg-[#fff1f6]",
@@ -48,35 +42,6 @@ function parsePage(value: string) {
   }
 
   return parsed
-}
-
-function parsePrice(value: string) {
-  return Number.parseFloat(value.replace(/[^\d.]/g, "")) || 0
-}
-
-function sortProducts(products: StorefrontProduct[], sort: string) {
-  const sorted = [...products]
-
-  if (sort === "price-asc") {
-    sorted.sort(
-      (left, right) => parsePrice(left.price) - parsePrice(right.price)
-    )
-    return sorted
-  }
-
-  if (sort === "price-desc") {
-    sorted.sort(
-      (left, right) => parsePrice(right.price) - parsePrice(left.price)
-    )
-    return sorted
-  }
-
-  if (sort === "name") {
-    sorted.sort((left, right) => left.name.localeCompare(right.name))
-    return sorted
-  }
-
-  return sorted
 }
 
 function buildProductsHref(
@@ -121,46 +86,16 @@ export default async function ProductsPage({
   const query = getSingleParam(resolvedSearchParams.q).trim()
   const category = getSingleParam(resolvedSearchParams.category).trim()
   const sort = getSingleParam(resolvedSearchParams.sort).trim() || "featured"
+  const page = parsePage(getSingleParam(resolvedSearchParams.page))
 
-  const filteredProducts = storefrontProducts.filter((product) => {
-    const matchesQuery =
-      !query ||
-      [
-        product.name,
-        product.description,
-        product.category,
-        product.badge,
-        product.finish,
-        ...product.searchTerms,
-      ]
-        .join(" ")
-        .toLowerCase()
-        .includes(query.toLowerCase())
+  const [{ products: paginatedProducts, total, totalPages, currentPage }, dbCategories] =
+    await Promise.all([
+      getProducts({ query, category, sort, page }),
+      getCategories(),
+    ])
 
-    const matchesCategory = !category || product.category === category
-
-    return matchesQuery && matchesCategory
-  })
-
-  const sortedProducts = sortProducts(filteredProducts, sort)
-  const totalPages = Math.max(
-    1,
-    Math.ceil(sortedProducts.length / PRODUCTS_PER_PAGE)
-  )
-  const currentPage = Math.min(
-    parsePage(getSingleParam(resolvedSearchParams.page)),
-    totalPages
-  )
-  const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE
-  const paginatedProducts = sortedProducts.slice(
-    startIndex,
-    startIndex + PRODUCTS_PER_PAGE
-  )
-  const categoryOptions = storefrontCategoryChips.filter((chip) =>
-    storefrontProducts.some((product) => product.category === chip.label)
-  )
   const isEmptyCategorySelection =
-    filteredProducts.length === 0 && Boolean(category) && !query
+    total === 0 && Boolean(category) && !query
 
   return (
     <main className="bg-[#fffaf6] text-[#1f2833]">
@@ -194,9 +129,9 @@ export default async function ProductsPage({
                     className="h-11 rounded-full border border-[#e1d4ca] bg-white px-4 text-sm text-[#2f231b] transition outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
                   >
                     <option value="">All categories</option>
-                    {categoryOptions.map((option) => (
-                      <option key={option.href} value={option.label}>
-                        {option.label}
+                    {dbCategories.map((cat) => (
+                      <option key={cat.slug} value={cat.name}>
+                        {cat.name}
                       </option>
                     ))}
                   </select>
@@ -241,7 +176,7 @@ export default async function ProductsPage({
                   </span>{" "}
                   of{" "}
                   <span className="font-semibold text-[#2f231b]">
-                    {filteredProducts.length}
+                    {total}
                   </span>{" "}
                   products
                 </p>
@@ -327,8 +262,8 @@ export default async function ProductsPage({
               </h3>
               <p className="mx-auto mt-4 max-w-2xl text-[#6d5544]">
                 {isEmptyCategorySelection
-                  ? "Try another category or clear the filter to explore more of the mock catalogue."
-                  : "Adjust the search term or clear the category filter to explore more of the mock catalogue."}
+                  ? "Try another category or clear the filter to explore more of the catalogue."
+                  : "Adjust the search term or clear the category filter to explore more of the catalogue."}
               </p>
             </div>
           )}

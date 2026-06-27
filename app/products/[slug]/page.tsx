@@ -7,7 +7,7 @@ import { ArrowUpRight, ShoppingCart } from "lucide-react"
 import { ProductVariantSelector } from "@/components/product-variant-selector"
 import { StorefrontAddToCartTrigger } from "@/components/storefront-add-to-cart-trigger"
 import { Button } from "@/components/ui/button"
-import { storefrontProducts } from "@/lib/mock-storefront"
+import { getProductBySlug, getRelatedProducts } from "@/lib/storefront-products"
 
 const relatedAccentClasses = [
   "bg-[#ff6b9a]",
@@ -29,27 +29,17 @@ type ProductDetailPageProps = {
   }>
 }
 
-export function generateStaticParams() {
-  return storefrontProducts.map((product) => ({
-    slug: product.slug,
-  }))
-}
-
 export default async function ProductDetailPage({
   params,
 }: ProductDetailPageProps) {
   const { slug } = await params
-  const product = storefrontProducts.find((item) => item.slug === slug)
+  const product = await getProductBySlug(slug)
 
   if (!product) {
     notFound()
   }
 
-  const relatedProducts = storefrontProducts
-    .filter(
-      (item) => item.category === product.category && item.slug !== product.slug
-    )
-    .slice(0, 4)
+  const relatedProducts = await getRelatedProducts(product.category, product.slug)
 
   return (
     <main className="bg-[#fffaf6] text-[#1f2833]">
