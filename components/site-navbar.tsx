@@ -60,6 +60,7 @@ export function SiteNavbar() {
   const [isAuthLoading, setIsAuthLoading] = useState(true)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
 
   async function readCurrentUser() {
     try {
@@ -106,7 +107,7 @@ export function SiteNavbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-[oklch(0.86_0.03_40)] bg-[rgba(252,248,242,0.9)] backdrop-blur-xl">
       <div className="px-4 sm:px-6 lg:px-16">
-        <div className="flex min-h-24 items-center justify-between gap-8">
+        <div className="flex min-h-16 items-center justify-between gap-6">
           <Link
             href="/"
             className="flex min-w-0 items-center gap-3 rounded-full focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
@@ -114,7 +115,7 @@ export function SiteNavbar() {
             <span className="flex size-11 items-center justify-center rounded-full bg-[oklch(0.43_0.16_170)] text-sm font-semibold tracking-[0.24em] text-[oklch(0.98_0.01_85)] uppercase">
               {brand.mark}
             </span>
-            <span className="flex min-w-0 flex-col">
+            <span className={`flex min-w-0 flex-col transition-all duration-200 ${isSearchOpen ? "hidden" : ""}`}>
               <span className="truncate font-heading text-lg font-semibold tracking-[-0.04em] text-[oklch(0.23_0.03_30)]">
                 {brand.name}
               </span>
@@ -125,16 +126,16 @@ export function SiteNavbar() {
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden items-center gap-10 lg:flex">
+          <nav className="hidden items-center gap-7 lg:flex">
             {links.map((link, index) => {
               if (link.comingSoon) {
                 return (
                   <span
                     key={link.label}
-                    className="relative flex items-center gap-1.5 pb-2 text-base font-semibold tracking-[0.16em] text-[oklch(0.65_0.03_40)] uppercase select-none"
+                    className="relative flex items-center gap-1.5 pb-1.5 text-sm font-semibold tracking-[0.06em] text-[oklch(0.65_0.03_40)] uppercase select-none"
                   >
                     {link.label}
-                    <span className="rounded-full bg-[oklch(0.92_0.04_170)] px-1.5 py-0.5 text-[0.55rem] font-bold tracking-[0.12em] text-[oklch(0.43_0.16_170)] uppercase">
+                    <span className="rounded-full bg-[oklch(0.92_0.04_170)] px-1.5 py-0.5 text-[0.55rem] font-bold tracking-widest text-[oklch(0.43_0.16_170)] uppercase">
                       Soon
                     </span>
                   </span>
@@ -152,8 +153,8 @@ export function SiteNavbar() {
                   >
                     <button
                       type="button"
-                      className="group flex items-center gap-1 pb-2 text-base font-semibold tracking-[0.16em] text-[oklch(0.4_0.04_40)] uppercase transition-colors hover:text-[oklch(0.23_0.03_30)] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-                      aria-expanded={isOpen ? "true" : "false"}
+                      className="group flex items-center gap-1 pb-1.5 text-sm font-semibold tracking-[0.06em] text-[oklch(0.4_0.04_40)] uppercase transition-colors hover:text-[oklch(0.23_0.03_30)] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                      aria-expanded={isOpen}
                     >
                       {link.label}
                       <ChevronDown
@@ -161,7 +162,7 @@ export function SiteNavbar() {
                       />
                       <span
                         aria-hidden="true"
-                        className={`absolute bottom-0 left-0 h-[3px] w-full origin-left rounded-full transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                        className={`absolute bottom-0 left-0 h-0.75 w-full origin-left rounded-full transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
                           desktopNavUnderlineClasses[
                             index % desktopNavUnderlineClasses.length
                           ]
@@ -192,12 +193,12 @@ export function SiteNavbar() {
                 <Link
                   key={link.label}
                   href={link.href}
-                  className="group relative pb-2 text-base font-semibold tracking-[0.16em] text-[oklch(0.4_0.04_40)] uppercase transition-colors hover:text-[oklch(0.23_0.03_30)] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                  className="group relative pb-1.5 text-sm font-semibold tracking-[0.06em] text-[oklch(0.4_0.04_40)] uppercase transition-colors hover:text-[oklch(0.23_0.03_30)] focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                 >
                   <span>{link.label}</span>
                   <span
                     aria-hidden="true"
-                    className={`absolute bottom-0 left-0 h-[3px] w-full origin-left scale-x-0 rounded-full transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-x-100 group-focus-visible:scale-x-100 ${
+                    className={`absolute bottom-0 left-0 h-0.75 w-full origin-left scale-x-0 rounded-full transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-x-100 group-focus-visible:scale-x-100 ${
                       desktopNavUnderlineClasses[
                         index % desktopNavUnderlineClasses.length
                       ]
@@ -208,25 +209,50 @@ export function SiteNavbar() {
             })}
           </nav>
 
-          <div className="hidden flex-1 items-center justify-end gap-4 lg:flex">
-            <form action="/products" className="relative w-full max-w-sm">
-              <Search className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-[oklch(0.57_0.03_45)]" />
-              <Input
-                name="q"
-                aria-label="Search products"
-                placeholder={searchPlaceholder}
-                defaultValue={currentQuery}
-                className="h-12 rounded-full border-[oklch(0.86_0.03_40)] bg-white pl-11 text-[oklch(0.23_0.03_30)] placeholder:text-[oklch(0.57_0.03_45)]"
-              />
-            </form>
+          <div className="hidden items-center justify-end gap-2 lg:flex">
+            {/* Expandable search */}
+            <div className="flex items-center">
+              {isSearchOpen ? (
+                <form
+                  action="/products"
+                  className="relative flex items-center"
+                  onBlur={(e) => {
+                    if (!e.currentTarget.contains(e.relatedTarget)) {
+                      setIsSearchOpen(false)
+                    }
+                  }}
+                >
+                  <Search className="pointer-events-none absolute left-3.5 size-4 text-[oklch(0.57_0.03_45)]" />
+                  <Input
+                    name="q"
+                    aria-label="Search products"
+                    placeholder={searchPlaceholder}
+                    defaultValue={currentQuery}
+                    autoFocus
+                    className="h-10 w-56 rounded-full border-[oklch(0.86_0.03_40)] bg-white pl-10 text-sm text-[oklch(0.23_0.03_30)] placeholder:text-[oklch(0.57_0.03_45)]"
+                  />
+                </form>
+              ) : (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Search products"
+                  onClick={() => setIsSearchOpen(true)}
+                  className="size-10 rounded-full border border-[oklch(0.86_0.03_40)] bg-white text-[oklch(0.57_0.03_45)] hover:bg-[oklch(0.97_0.02_40)] hover:text-[oklch(0.23_0.03_30)]"
+                >
+                  <Search className="size-4" />
+                </Button>
+              )}
+            </div>
 
             <Button
               asChild
               variant="ghost"
-              className="h-12 rounded-full border border-[oklch(0.86_0.03_40)] bg-white px-4 text-base text-[oklch(0.23_0.03_30)] hover:bg-[oklch(0.97_0.02_40)]"
+              className="h-10 rounded-full border border-[oklch(0.86_0.03_40)] bg-white px-4 text-sm font-semibold text-[oklch(0.23_0.03_30)] hover:bg-[oklch(0.97_0.02_40)]"
             >
               <Link href="/cart">
-                <ShoppingCart data-icon="inline-start" />
+                <ShoppingCart data-icon="inline-start" className="size-4" />
                 {cartLabel}
                 <span className="rounded-full bg-[oklch(0.68_0.18_350)] px-2 py-0.5 text-xs text-white">
                   {cartCount}
@@ -240,7 +266,7 @@ export function SiteNavbar() {
                 disabled
                 variant="ghost"
                 aria-label="Loading session"
-                className="h-12 rounded-full px-5 text-base font-semibold tracking-[0.16em] text-[oklch(0.45_0.03_40)] uppercase"
+                className="h-10 rounded-full px-4 text-sm font-semibold text-[oklch(0.45_0.03_40)]"
               >
                 <LoadingIndicator label="Checking session..." />
               </Button>
@@ -249,7 +275,7 @@ export function SiteNavbar() {
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="h-12 rounded-full px-5 text-base font-semibold text-[oklch(0.23_0.03_30)] hover:bg-[oklch(0.97_0.02_40)]"
+                    className="h-10 rounded-full px-4 text-sm font-semibold text-[oklch(0.23_0.03_30)] hover:bg-[oklch(0.97_0.02_40)]"
                   >
                     Hi, {customerName}
                     <ChevronDown data-icon="inline-end" className="size-4" />
@@ -277,7 +303,7 @@ export function SiteNavbar() {
               <Button
                 asChild
                 variant="ghost"
-                className="h-12 rounded-full px-5 text-base font-semibold tracking-[0.16em] text-[oklch(0.23_0.03_30)] uppercase hover:bg-[oklch(0.97_0.02_40)]"
+                className="h-10 rounded-full px-4 text-sm font-semibold tracking-[0.06em] text-[oklch(0.23_0.03_30)] uppercase hover:bg-[oklch(0.97_0.02_40)]"
               >
                 <Link href="/login">Login</Link>
               </Button>
