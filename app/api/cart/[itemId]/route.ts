@@ -4,7 +4,8 @@ import { and, eq } from "drizzle-orm"
 import { cartItems } from "@/db/schema"
 import { getCurrentUser } from "@/lib/auth"
 import { getDb } from "@/lib/db"
-import { findStorefrontProduct, getCustomerCart } from "@/lib/storefront-cart"
+import { getCustomerCart } from "@/lib/storefront-cart"
+import { getProductById } from "@/lib/storefront-products"
 
 type CartItemBody = {
   quantity?: number
@@ -36,7 +37,7 @@ export async function PATCH(
     return NextResponse.json({ error: "Cart item not found." }, { status: 404 })
   }
 
-  const product = findStorefrontProduct(existingItem.productId)
+  const product = await getProductById(existingItem.productId)
 
   if (!product) {
     return NextResponse.json({ error: "Product not found." }, { status: 404 })

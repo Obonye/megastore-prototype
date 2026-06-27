@@ -4,7 +4,8 @@ import { eq } from "drizzle-orm"
 
 import { cartItems } from "@/db/schema"
 import { getDb } from "@/lib/db"
-import { storefrontProducts } from "@/lib/mock-storefront"
+import { getProductById } from "@/lib/storefront-products"
+import type { VariantGroup } from "@/lib/mock-storefront"
 
 export type PersistedStorefrontCartItem = {
   id: string
@@ -19,15 +20,11 @@ export type PersistedStorefrontCartItem = {
   selectedVariants: Record<string, string>
   stock: number
   unitPrice: number
-  variants?: (typeof storefrontProducts)[number]["variants"]
+  variants?: VariantGroup[]
 }
 
 export type PersistedStorefrontCart = {
   items: PersistedStorefrontCartItem[]
-}
-
-export function findStorefrontProduct(productId: string) {
-  return storefrontProducts.find((product) => product.id === productId) ?? null
 }
 
 export async function getCustomerCart(userId: string): Promise<PersistedStorefrontCart> {
@@ -38,11 +35,11 @@ export async function getCustomerCart(userId: string): Promise<PersistedStorefro
     .where(eq(cartItems.userId, userId))
     .orderBy(cartItems.createdAt)
 
-  return {
-    items: rows.flatMap((row) => {
-      const product = findStorefrontProduct(row.productId)
+  const itemsWithProducts = await Promise.all(
+    rows.map(async (row) => {
+      const product = await getProductById(row.productId)
 
-      if (!product) return []
+      if (!product) return null
 
       return {
         id: product.id,
@@ -59,6 +56,10 @@ export async function getCustomerCart(userId: string): Promise<PersistedStorefro
         unitPrice: product.unitPrice,
         variants: product.variants,
       }
-    }),
+    })
+  )
+
+  return {
+    items: itemsWithProducts.filter((item) => item !== null),
   }
 }

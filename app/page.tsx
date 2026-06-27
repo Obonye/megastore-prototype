@@ -10,9 +10,8 @@ import { Button } from "@/components/ui/button"
 import {
   storefrontCategoryChips,
   storefrontHeroSlides,
-  storefrontProducts,
-  trendingStorefrontItems,
 } from "@/lib/mock-storefront"
+import { getBestSellerProducts, getTrendingProducts } from "@/lib/storefront-products"
 
 const categoryShadowClasses = [
   "bg-[#ff6b9a]",
@@ -96,25 +95,6 @@ const shopByNeedNumberClasses = [
   "text-[#7c8cff]",
 ]
 
-const bestSellerBadges = new Set([
-  "Bestseller",
-  "Decorator favorite",
-  "Bakery staple",
-  "Everyday essential",
-])
-
-const productFinishById = new Map(
-  storefrontProducts.map((product) => [product.id, product.finish])
-)
-
-const productSlugById = new Map(
-  storefrontProducts.map((product) => [product.id, product.slug])
-)
-
-const bestSellerProducts = storefrontProducts
-  .filter((product) => bestSellerBadges.has(product.badge))
-  .slice(0, 4)
-
 function formatItemNumber(index: number) {
   return String(index + 1).padStart(2, "0")
 }
@@ -191,7 +171,12 @@ function getCategoryLiftClasses(index: number) {
     .join(" ")
 }
 
-export default function Page() {
+export default async function Page() {
+  const [trendingProducts, bestSellerProducts] = await Promise.all([
+    getTrendingProducts(8),
+    getBestSellerProducts(4),
+  ])
+
   return (
     <main>
       <ProductsHeroCarousel slides={storefrontHeroSlides} />
@@ -223,7 +208,7 @@ export default function Page() {
           <div className="mt-10 sm:hidden">
             <div className="-mx-6 [scrollbar-width:none] overflow-x-auto px-6 [&::-webkit-scrollbar]:hidden">
               <div className="flex gap-4 pb-1">
-                {trendingStorefrontItems.map((item, index) => (
+                {trendingProducts.map((item, index) => (
                   <article
                     key={item.id}
                     className={`group relative w-[18.25rem] shrink-0 overflow-hidden rounded-[1.4rem] bg-[#f3f2ee] transition-colors duration-300 ${trendingHoverClasses[index % trendingHoverClasses.length]}`}
@@ -248,7 +233,7 @@ export default function Page() {
                         {item.description}
                       </p>
                       <p className="text-[0.68rem] font-semibold tracking-[0.16em] text-[#7a6f7c] uppercase">
-                        {productFinishById.get(item.id) ?? "Store favorite"} ·{" "}
+                        {item.finish || "Store favorite"} ·{" "}
                         <span className="text-[#8e0048]">
                           {item.stock <= 5
                             ? `Only ${item.stock} left`
@@ -256,7 +241,7 @@ export default function Page() {
                         </span>
                       </p>
                       <Link
-                        href={`/products/${productSlugById.get(item.id) ?? item.id}`}
+                        href={`/products/${item.slug}`}
                         className="relative z-20 mt-3 inline-flex text-sm font-semibold text-[#8e0048] transition-colors hover:text-[#6f0038]"
                       >
                         View details
@@ -276,7 +261,7 @@ export default function Page() {
                       </div>
                     </div>
                     <Link
-                      href={`/products/${productSlugById.get(item.id) ?? item.id}`}
+                      href={`/products/${item.slug}`}
                       aria-label={`View ${item.name}`}
                       className="absolute inset-0 z-10 cursor-pointer rounded-[1.4rem]"
                     />
@@ -287,14 +272,14 @@ export default function Page() {
             <div className="mt-4 flex items-center justify-between text-[0.72rem] font-semibold tracking-[0.18em] text-[#8e0048] uppercase">
               <span>Swipe through picks</span>
               <span>
-                {formatItemNumber(trendingStorefrontItems.length - 1)} items
+                {formatItemNumber(trendingProducts.length - 1)} items
               </span>
             </div>
           </div>
 
           <div className="mt-10 hidden overflow-hidden rounded-[2rem] border border-[#dfd0d8] bg-[#dfd0d8] sm:block">
             <div className="grid gap-px sm:grid-cols-2 xl:grid-cols-4">
-              {trendingStorefrontItems.map((item, index) => (
+              {trendingProducts.map((item, index) => (
                 <article
                   key={item.id}
                   className={`group relative overflow-hidden bg-[#f3f2ee] transition-colors duration-300 ${trendingHoverClasses[index % trendingHoverClasses.length]}`}
@@ -316,7 +301,7 @@ export default function Page() {
                       {item.description}
                     </p>
                     <p className="text-[0.68rem] font-semibold tracking-[0.16em] text-[#7a6f7c] uppercase">
-                      {productFinishById.get(item.id) ?? "Store favorite"} ·{" "}
+                      {item.finish || "Store favorite"} ·{" "}
                       <span className="text-[#8e0048]">
                         {item.stock <= 5
                           ? `Only ${item.stock} left`
@@ -324,7 +309,7 @@ export default function Page() {
                       </span>
                     </p>
                     <Link
-                      href={`/products/${productSlugById.get(item.id) ?? item.id}`}
+                      href={`/products/${item.slug}`}
                       className="relative z-20 mt-3 inline-flex text-sm font-semibold text-[#8e0048] transition-colors hover:text-[#6f0038]"
                     >
                       View details
@@ -344,7 +329,7 @@ export default function Page() {
                     </div>
                   </div>
                   <Link
-                    href={`/products/${productSlugById.get(item.id) ?? item.id}`}
+                    href={`/products/${item.slug}`}
                     aria-label={`View ${item.name}`}
                     className="absolute inset-0 z-10 cursor-pointer"
                   />
